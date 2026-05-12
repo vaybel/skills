@@ -26,7 +26,23 @@ Product -> Design -> Mockups
 `find-trend`, `optimize-product`, and `make-video` are intentionally deferred
 until those public MCP surfaces exist.
 
-## Quick Start
+## Setup - Recommended
+
+Claude Code marketplace install:
+
+```text
+/plugin marketplace add vaybel/skills
+/plugin install vaybel@vaybel
+```
+
+Use one shared secret for MCP and skills: define `VAYBEL_PAT` in Claude Code
+settings, and reference it from the Vaybel MCP server config. Then run:
+
+```text
+/vaybel:launch-product "washed trail running poster art on a heavyweight tee"
+```
+
+## Manual Setup
 
 ```bash
 git clone https://github.com/vaybel/skills.git
@@ -34,12 +50,6 @@ cd skills
 npm install
 export VAYBEL_PAT="vbl_pat_live_..."
 ./setup
-```
-
-Then in a supported agent:
-
-```text
-/vaybel:launch-product "washed trail running poster art on a heavyweight tee"
 ```
 
 ## Repository Layout

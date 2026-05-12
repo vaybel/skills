@@ -326,13 +326,17 @@ function readValue(args: string[], index: number, flag: string): string {
 }
 
 function preflightEnvironment(): void {
-  if (!process.env.VAYBEL_PAT && !process.env.VAYBEL_MCP_TOKEN) {
-    throw new Error("Set VAYBEL_PAT before running this skill.");
+  if (
+    !process.env.VAYBEL_PAT &&
+    !process.env.VAYBEL_MCP_TOKEN &&
+    !process.env.CLAUDE_PLUGIN_OPTION_vaybel_pat
+  ) {
+    throw new Error("Set VAYBEL_PAT or configure the Vaybel PAT plugin option before running this skill.");
   }
 }
 
 function dashboardUrl(designId: string): string {
-  const base = process.env.VAYBEL_APP_URL || "https://vaybel.com";
+  const base = process.env.VAYBEL_APP_URL || process.env.CLAUDE_PLUGIN_OPTION_app_url || "https://vaybel.com";
   return `${base.replace(/\/$/, "")}/dashboard/launch/${designId}`;
 }
 

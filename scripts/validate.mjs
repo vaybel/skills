@@ -148,20 +148,38 @@ function validateSkills(skillDirs) {
 
 function validateMarketplace(skillDirs) {
   const marketplace = readJson(".claude-plugin/marketplace.json");
-  const listed = new Set((marketplace.plugins?.[0]?.skills || []).map((skill) => skill.path));
-  for (const dir of skillDirs) {
-    if (!listed.has(dir)) {
-      fail(`marketplace.json does not list ${dir}`);
-    }
+  const plugin = marketplace.plugins?.[0];
+  if (marketplace.name !== "vaybel") {
+    fail(".claude-plugin/marketplace.json name must be vaybel");
+  }
+  if (plugin?.name !== "vaybel") {
+    fail(".claude-plugin/marketplace.json plugins[0].name must be vaybel");
+  }
+  if (plugin?.source !== "./") {
+    fail(".claude-plugin/marketplace.json plugins[0].source must be ./");
+  }
+  if (plugin?.skills) {
+    fail(".claude-plugin/marketplace.json must not include plugins[0].skills; Claude discovers skills from the installed plugin");
   }
 
-  for (const skill of marketplace.plugins?.[0]?.skills || []) {
-    if (!exists(`${skill.path}/SKILL.md`)) {
-      fail(`marketplace.json path ${skill.path} has no SKILL.md`);
+  for (const dir of skillDirs) {
+    const frontmatter = parseFrontmatter(`${dir}/SKILL.md`);
+    if (!frontmatter.name) {
+      fail(`${dir}/SKILL.md missing skill name for /vaybel:<skill-name>`);
     }
-    if (!String(skill.invoke || "").startsWith("/vaybel:")) {
-      fail(`marketplace.json skill ${skill.name} has invalid invoke ${skill.invoke}`);
-    }
+  }
+}
+
+function validateClaudePlugin() {
+  const plugin = readJson(".claude-plugin/plugin.json");
+  if (plugin.skills !== "./skills/") {
+    fail(".claude-plugin/plugin.json skills must be ./skills/");
+  }
+  if (!plugin.userConfig?.vaybel_pat?.sensitive) {
+    fail(".claude-plugin/plugin.json must define sensitive userConfig.vaybel_pat");
+  }
+  if (plugin.userConfig?.vaybel_pat?.required) {
+    fail(".claude-plugin/plugin.json userConfig.vaybel_pat must be optional; VAYBEL_PAT is the canonical secret");
   }
 }
 
@@ -261,6 +279,7 @@ const skillDirs = listSkillDirs();
 validateVersions(skillDirs);
 validateSkills(skillDirs);
 validateMarketplace(skillDirs);
+validateClaudePlugin();
 validateReferences(skillDirs);
 validateForbiddenPatterns();
 validateAssets();

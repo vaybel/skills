@@ -29,8 +29,8 @@ agent marketplaces.
 
 - [ ] `.claude-plugin/marketplace.json` has owner, plugin version, skill path,
       and invoke name.
-- [ ] `.claude-plugin/plugin.json` has homepage, repository, license, and
-      keywords.
+- [ ] `.claude-plugin/plugin.json` has homepage, repository, license, keywords,
+      `skills`, and sensitive `vaybel_pat` user config.
 - [ ] Install test:
 
 ```text
@@ -39,6 +39,8 @@ agent marketplaces.
 /vaybel:launch-product "washed archive tee graphic"
 ```
 
+- [ ] Confirm the install prompts for `vaybel_pat`, and the runner accepts the
+      resulting `CLAUDE_PLUGIN_OPTION_vaybel_pat` environment value.
 - [ ] Update public docs with the Claude Code install path.
 
 ## Codex Plugin

@@ -1,5 +1,5 @@
 ---
-name: vaybel-launch-product
+name: launch-product
 version: 0.1.0
 description: |
   Launch a Vaybel product through the public MCP server. Use when the user wants
@@ -28,26 +28,29 @@ user can continue manually.
 Use the bundled TypeScript runner from the repo root:
 
 ```bash
-npm run launch-product -- "<prompt-or-theme>"
+npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>"
 ```
 
 Pass through user-provided options:
 
 ```bash
-npm run launch-product -- "<prompt-or-theme>" --category tee --technique dtg
-npm run launch-product -- "<prompt-or-theme>" --product <uuid-or-sku>
-npm run launch-product -- "<prompt-or-theme>" --quality standard --json
+npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --category tee --technique dtg
+npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --product <uuid-or-sku>
+npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --quality standard --json
 ```
 
-If dependencies are missing, run `npm install` once from the repo root.
+If dependencies are missing, run `npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" install` once.
 
 ## Required Environment
 
-- `VAYBEL_PAT` must be set.
-- Optional: `VAYBEL_MCP_URL` for local/dev MCP.
+- Recommended: `VAYBEL_PAT` is set once in Claude Code settings and reused by
+  the Vaybel MCP server and this skill.
+- Optional fallback: the Claude plugin `vaybel_pat` option can be set when the
+  skill is installed without a shared `VAYBEL_PAT` environment.
+- Optional: `VAYBEL_MCP_URL` or plugin option `mcp_url` for local/dev MCP.
 
 Do not ask the user to paste a PAT in chat. Ask them to set the environment
-variable in their shell or agent environment.
+variable or plugin option in their agent environment.
 
 ## Behavior
 

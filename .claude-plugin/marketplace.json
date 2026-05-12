@@ -1,5 +1,6 @@
 {
   "name": "vaybel",
+  "description": "Vaybel agent skills for operating print-on-demand workflows through MCP.",
   "owner": {
     "name": "Vaybel",
     "url": "https://vaybel.com"
@@ -10,12 +11,16 @@
       "source": "./",
       "description": "Code-on-MCP agent workflows for launching Vaybel clothing products.",
       "version": "0.1.0",
-      "skills": [
-        {
-          "name": "launch-product",
-          "path": "skills/launch-product",
-          "invoke": "/vaybel:launch-product"
-        }
+      "author": {
+        "name": "Vaybel"
+      },
+      "license": "Apache-2.0",
+      "homepage": "https://github.com/vaybel/skills",
+      "keywords": [
+        "vaybel",
+        "mcp",
+        "agent-skills",
+        "print-on-demand"
       ]
     }
   ]

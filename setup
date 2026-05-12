@@ -4,17 +4,22 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")" && pwd)"
 VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION")"
 HOST=""
+CLAUDE_SCOPE="user"
 
 usage() {
   cat <<'EOF'
 Vaybel Skills setup
 
 Usage:
-  ./setup [--host claude|cursor|codex]
+  ./setup [--host claude|cursor|codex] [--scope user|project|local]
 
-The setup script symlinks the whole Vaybel plugin repo into the detected
-agent plugin directory. The whole repo is installed because skills share
-client.ts and servers/vaybel wrappers.
+Claude installs through the Claude Code plugin registry:
+  claude plugin marketplace add <this repo>
+  claude plugin install vaybel@vaybel
+
+Cursor and Codex fallback installs symlink the whole repo into the detected
+agent plugin directory because skills share client.ts and servers/vaybel
+wrappers.
 EOF
 }
 
@@ -26,6 +31,13 @@ while [ $# -gt 0 ]; do
       ;;
     --host=*)
       HOST="${1#--host=}"
+      ;;
+    --scope)
+      shift
+      CLAUDE_SCOPE="${1:-}"
+      ;;
+    --scope=*)
+      CLAUDE_SCOPE="${1#--scope=}"
       ;;
     --help|-h)
       usage
@@ -58,9 +70,67 @@ if [ -z "$HOST" ]; then
   fi
 fi
 
+install_claude() {
+  if ! command -v claude >/dev/null 2>&1; then
+    echo "Claude Code CLI not found. Install Claude Code, then re-run ./setup --host claude." >&2
+    exit 1
+  fi
+
+  case "$CLAUDE_SCOPE" in
+    user|project|local)
+      ;;
+    *)
+      echo "Unknown Claude plugin scope: $CLAUDE_SCOPE" >&2
+      echo "Use --scope user, --scope project, or --scope local." >&2
+      exit 1
+      ;;
+  esac
+
+  for secret_file in .env .env.local .env.production .env.development; do
+    if [ -f "$ROOT/$secret_file" ]; then
+      echo "$ROOT/$secret_file exists." >&2
+      echo "Claude local-path plugin installs copy the checkout into its plugin cache." >&2
+      echo "Move secrets to Claude Code settings or your shell environment, remove $secret_file, then re-run setup." >&2
+      exit 1
+    fi
+  done
+
+  echo "Validating Vaybel Claude plugin..."
+  claude plugin validate "$ROOT"
+
+  LEGACY_TARGET="$HOME/.claude/plugins/vaybel"
+  if [ -L "$LEGACY_TARGET" ]; then
+    rm "$LEGACY_TARGET"
+    echo "Removed legacy symlink at $LEGACY_TARGET; Claude Code uses its plugin registry."
+  elif [ -e "$LEGACY_TARGET" ]; then
+    echo "$LEGACY_TARGET exists and is not a symlink; leaving it untouched." >&2
+  fi
+
+  if claude plugin marketplace list | grep -Eq '^[[:space:]]*❯ vaybel$'; then
+    echo "Vaybel marketplace already configured; updating it..."
+    claude plugin marketplace update vaybel
+  else
+    echo "Adding Vaybel marketplace from $ROOT..."
+    claude plugin marketplace add "$ROOT"
+  fi
+
+  if claude plugin list | grep -Eq '^[[:space:]]*❯ vaybel@vaybel$'; then
+    echo "Vaybel plugin already installed; updating it..."
+    claude plugin update "vaybel@vaybel" --scope "$CLAUDE_SCOPE"
+  else
+    echo "Installing Vaybel plugin at $CLAUDE_SCOPE scope..."
+    claude plugin install "vaybel@vaybel" --scope "$CLAUDE_SCOPE"
+  fi
+
+  echo "Installed Vaybel Skills v$VERSION for Claude Code."
+  echo "Use VAYBEL_PAT as the shared secret for both Vaybel MCP and Vaybel Skills."
+  echo 'Restart Claude Code, then run: /vaybel:launch-product "washed archive tee graphic"'
+}
+
 case "$HOST" in
   claude)
-    TARGET_PARENT="$HOME/.claude/plugins"
+    install_claude
+    exit 0
     ;;
   cursor)
     TARGET_PARENT="$HOME/.cursor/plugins"

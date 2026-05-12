@@ -45,14 +45,19 @@ async function getClient(): Promise<Client> {
 }
 
 async function connectClient(): Promise<Client> {
-  const token = process.env.VAYBEL_PAT || process.env.VAYBEL_MCP_TOKEN;
+  const token =
+    process.env.VAYBEL_PAT ||
+    process.env.VAYBEL_MCP_TOKEN ||
+    process.env.CLAUDE_PLUGIN_OPTION_vaybel_pat;
   if (!token) {
     throw new VaybelMCPError(
       "Missing Vaybel auth. Set VAYBEL_PAT to a PAT from Dashboard -> Settings -> MCP.",
     );
   }
 
-  const url = new URL(process.env.VAYBEL_MCP_URL || DEFAULT_MCP_URL);
+  const url = new URL(
+    process.env.VAYBEL_MCP_URL || process.env.CLAUDE_PLUGIN_OPTION_mcp_url || DEFAULT_MCP_URL,
+  );
   const transport = new StreamableHTTPClientTransport(url, {
     requestInit: {
       headers: {
