@@ -1,0 +1,25 @@
+{
+  "$schema": "https://cursor.com/schemas/cursor-plugin/plugin.json",
+  "name": "vaybel",
+  "displayName": "Vaybel",
+  "version": "0.1.0",
+  "description": "Vaybel skills: code-on-MCP workflows for turning apparel ideas into designs and flat mockups.",
+  "author": {
+    "name": "Vaybel",
+    "email": "support@vaybel.com"
+  },
+  "publisher": "Vaybel",
+  "homepage": "https://vaybel.com",
+  "repository": "https://github.com/vaybel/skills",
+  "license": "Apache-2.0",
+  "category": "ai-content",
+  "keywords": [
+    "vaybel",
+    "mcp",
+    "agent-skills",
+    "apparel",
+    "print-on-demand",
+    "design-generation",
+    "mockups"
+  ]
+}

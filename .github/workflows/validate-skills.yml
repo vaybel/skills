@@ -1,0 +1,34 @@
+name: Validate Skills
+
+on:
+  pull_request:
+    paths:
+      - "client.ts"
+      - "servers/**"
+      - "skills/**"
+      - "scripts/**"
+      - ".claude-plugin/**"
+      - ".codex-plugin/**"
+      - ".cursor-plugin/**"
+      - "package.json"
+      - "package-lock.json"
+      - "tsconfig.json"
+      - "VERSION"
+      - ".github/workflows/validate-skills.yml"
+  push:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate skills and TypeScript
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      - run: npm run validate
+      - run: npm run typecheck

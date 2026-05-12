@@ -1,0 +1,43 @@
+{
+  "name": "vaybel",
+  "version": "0.1.0",
+  "description": "Vaybel skills: code-on-MCP workflows for turning apparel ideas into designs and flat mockups.",
+  "author": {
+    "name": "Vaybel",
+    "email": "support@vaybel.com",
+    "url": "https://vaybel.com"
+  },
+  "homepage": "https://vaybel.com",
+  "repository": "https://github.com/vaybel/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "vaybel",
+    "mcp",
+    "agent-skills",
+    "apparel",
+    "print-on-demand",
+    "design-generation",
+    "mockups"
+  ],
+  "skills": "./skills",
+  "interface": {
+    "displayName": "Vaybel",
+    "shortDescription": "Launch apparel products through Vaybel MCP",
+    "longDescription": "Vaybel Skills let Codex turn an apparel idea into a Vaybel design and flat mockups by executing TypeScript orchestration code against the public Vaybel MCP server.",
+    "developerName": "Vaybel",
+    "category": "Design",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://vaybel.com",
+    "defaultPrompt": [
+      "Launch a Vaybel product from this apparel idea",
+      "Generate a tee design and flat mockups with Vaybel",
+      "Try this all-over-print concept in Vaybel"
+    ],
+    "brandColor": "#111827",
+    "composerIcon": "./assets/icon.svg",
+    "logo": "./assets/logo.svg"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "@vaybel/skills",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Vaybel agent skills that execute TypeScript orchestration code against the public Vaybel MCP server.",
+  "type": "module",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/vaybel/skills.git"
+  },
+  "scripts": {
+    "build": "tsc --outDir dist",
+    "launch-product": "npm run build --silent && node dist/skills/launch-product/run.js",
+    "typecheck": "tsc --noEmit",
+    "validate": "node scripts/validate.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.23.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.19",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,103 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+VERSION="$(tr -d '[:space:]' < "$ROOT/VERSION")"
+HOST=""
+
+usage() {
+  cat <<'EOF'
+Vaybel Skills setup
+
+Usage:
+  ./setup [--host claude|cursor|codex]
+
+The setup script symlinks the whole Vaybel plugin repo into the detected
+agent plugin directory. The whole repo is installed because skills share
+client.ts and servers/vaybel wrappers.
+EOF
+}
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --host)
+      shift
+      HOST="${1:-}"
+      ;;
+    --host=*)
+      HOST="${1#--host=}"
+      ;;
+    --help|-h)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown flag: $1" >&2
+      usage
+      exit 1
+      ;;
+  esac
+  shift
+done
+
+if [ ! -f "$ROOT/client.ts" ] || [ ! -d "$ROOT/skills/launch-product" ]; then
+  echo "Run setup from the Vaybel skills repo root." >&2
+  exit 1
+fi
+
+if [ -z "$HOST" ]; then
+  if [ -d "$HOME/.claude" ]; then
+    HOST="claude"
+  elif [ -d "$HOME/.cursor" ]; then
+    HOST="cursor"
+  elif [ -d "$HOME/.codex" ]; then
+    HOST="codex"
+  else
+    echo "Could not detect agent host. Re-run with --host claude|cursor|codex." >&2
+    exit 1
+  fi
+fi
+
+case "$HOST" in
+  claude)
+    TARGET_PARENT="$HOME/.claude/plugins"
+    ;;
+  cursor)
+    TARGET_PARENT="$HOME/.cursor/plugins"
+    ;;
+  codex)
+    TARGET_PARENT="$HOME/.codex/plugins"
+    ;;
+  *)
+    echo "Unknown host: $HOST" >&2
+    exit 1
+    ;;
+esac
+
+TARGET="$TARGET_PARENT/vaybel"
+mkdir -p "$TARGET_PARENT"
+
+if [ -L "$TARGET" ]; then
+  CURRENT="$(readlink "$TARGET")"
+  if [ "$CURRENT" = "$ROOT" ]; then
+    echo "Vaybel Skills v$VERSION already installed for $HOST at $TARGET"
+  else
+    rm "$TARGET"
+    ln -s "$ROOT" "$TARGET"
+    echo "Replaced stale Vaybel Skills symlink at $TARGET"
+  fi
+elif [ -e "$TARGET" ]; then
+  echo "$TARGET exists and is not a symlink; leaving it untouched." >&2
+  exit 1
+else
+  ln -s "$ROOT" "$TARGET"
+  echo "Installed Vaybel Skills v$VERSION for $HOST at $TARGET"
+fi
+
+if [ ! -d "$ROOT/node_modules" ]; then
+  echo "Dependencies are not installed. Run: npm install"
+fi
+
+if [ -z "${VAYBEL_PAT:-}" ] && [ -z "${VAYBEL_MCP_TOKEN:-}" ]; then
+  echo "Set VAYBEL_PAT before invoking /vaybel:launch-product."
+fi

@@ -1,0 +1,22 @@
+{
+  "name": "vaybel",
+  "owner": {
+    "name": "Vaybel",
+    "url": "https://vaybel.com"
+  },
+  "plugins": [
+    {
+      "name": "vaybel",
+      "source": "./",
+      "description": "Code-on-MCP agent workflows for launching Vaybel clothing products.",
+      "version": "0.1.0",
+      "skills": [
+        {
+          "name": "launch-product",
+          "path": "skills/launch-product",
+          "invoke": "/vaybel:launch-product"
+        }
+      ]
+    }
+  ]
+}
