@@ -25,21 +25,39 @@ user can continue manually.
 
 ## Execution
 
-Use the bundled TypeScript runner from the repo root:
+Use the bundled TypeScript runner. The `launch-product` npm script lives in
+the **plugin root** — the parent of `skills/launch-product/`, i.e. two
+directories above this SKILL.md.
+
+Resolve `$PLUGIN_ROOT` as the **absolute** path of the plugin root:
+
+- If `$CLAUDE_PLUGIN_ROOT` is set in the shell env, use that.
+- Otherwise, derive it from this SKILL.md's base directory (shown in the
+  skill prompt header). Strip the trailing `skills/launch-product` to get the
+  plugin root.
+
+Then invoke:
 
 ```bash
-npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>"
+npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>"
 ```
 
 Pass through user-provided options:
 
 ```bash
-npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --category tee --technique dtg
-npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --product <uuid-or-sku>
-npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" run launch-product -- "<prompt-or-theme>" --quality standard --json
+npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --category tee --technique dtg
+npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --product <uuid-or-sku>
+npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --quality standard --json
 ```
 
-If dependencies are missing, run `npm --prefix "${CLAUDE_PLUGIN_ROOT:-.}" install` once.
+Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
+call — do not rely on the shell expanding an unset variable.
+
+The `--quality` option only accepts `pro` or `standard`. Translate the user's
+wording before invoking: "premium / high / best / hi-res" → `pro`; "draft /
+fast / cheap / low" → `standard`. Default is `pro` when unspecified.
+
+If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install` once.
 
 ## Required Environment
 
@@ -62,8 +80,8 @@ The runner will:
    filters.
 4. Generate the design and wait for completion.
 5. Generate flat mockups and wait for completion.
-6. Print a short launch summary with product, design, mockup URLs, and the
-   Vaybel dashboard URL.
+6. Print a short launch summary with product, design, grouped mockup links, and
+   the Vaybel dashboard URL.
 
 ## Rules
 
@@ -74,6 +92,8 @@ The runner will:
   fails.
 - Surface only concise summaries and URLs. Do not dump full MCP payloads into
   chat.
+- After the runner succeeds, preserve its Markdown links and section structure.
+  Do not rewrite CDN URLs into plain filenames or generic labels.
 
 ## References
 

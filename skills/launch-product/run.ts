@@ -40,6 +40,7 @@ interface LaunchSummary {
   };
   mockups: Array<{
     id: string;
+    external_key: string;
     image_url: string | null;
     status: string;
   }>;
@@ -109,6 +110,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     },
     mockups: mockupStatus.mockups.map((mockup) => ({
       id: mockup.id,
+      external_key: mockup.external_key,
       image_url: mockup.image_url,
       status: mockup.status,
     })),
@@ -244,21 +246,120 @@ function sleep(ms: number): Promise<void> {
 
 function renderMarkdown(summary: LaunchSummary): string {
   const productTitle = summary.product.title || summary.product.uuid;
-  const mockupLines = summary.mockups
-    .map((mockup) => `- ${mockup.image_url || mockup.id}`)
-    .join("\n");
+  const designLabel = assetLabel(summary.design.image_url, "Design placement");
+  const mockupSections = renderMockupSections(summary.mockups);
 
   return [
-    "# Vaybel Launch Product",
+    "# Vaybel Launch Summary",
     "",
-    `Product: ${productTitle}`,
-    `Design: ${summary.design.image_url || summary.design.id}`,
+    `- Product: ${productTitle}`,
+    `- Design: ${assetLink(designLabel, summary.design.image_url, summary.design.id)}`,
     "",
-    "Mockups:",
-    mockupLines || "- none",
+    "## Mockups",
+    mockupSections || "- none",
     "",
-    `Continue in Vaybel: ${summary.dashboard_url}`,
+    `Continue in dashboard: ${summary.dashboard_url}`,
   ].join("\n");
+}
+
+function renderMockupSections(mockups: LaunchSummary["mockups"]): string {
+  const grouped = new Map<string, LaunchSummary["mockups"]>();
+  for (const mockup of mockups) {
+    const section = mockupSection(mockup);
+    const current = grouped.get(section) || [];
+    current.push(mockup);
+    grouped.set(section, current);
+  }
+
+  const sectionOrder = ["Product Flats", "Detail Close-Ups", "Virtual Try-On", "Lifestyle"];
+  return sectionOrder
+    .filter((section) => grouped.has(section))
+    .map((section) => {
+      const lines = sortMockups(grouped.get(section) || [])
+        .map((mockup) => `- ${assetLink(mockupLabel(mockup), mockup.image_url, mockup.id)}`)
+        .join("\n");
+      return [`### ${section}`, lines].join("\n");
+    })
+    .join("\n\n");
+}
+
+function mockupSection(mockup: LaunchSummary["mockups"][number]): string {
+  const text = searchableMockupText(mockup);
+  if (/(detail|close.?up|closeup|graphic|fabric|construction|collage)/i.test(text)) {
+    return "Detail Close-Ups";
+  }
+  if (/(vto|virtual|try.?on|model|worn|wearing|person)/i.test(text)) {
+    return "Virtual Try-On";
+  }
+  if (/(lifestyle|scene|display|flat.?scene|product.?display)/i.test(text)) {
+    return "Lifestyle";
+  }
+  return "Product Flats";
+}
+
+function sortMockups(mockups: LaunchSummary["mockups"]): LaunchSummary["mockups"] {
+  const order = ["front", "flat", "back", "side 45", "side", "left", "right"];
+  return [...mockups].sort((a, b) => {
+    const aText = searchableMockupText(a).toLowerCase();
+    const bText = searchableMockupText(b).toLowerCase();
+    return orderIndex(aText, order) - orderIndex(bText, order);
+  });
+}
+
+function orderIndex(text: string, order: string[]): number {
+  const index = order.findIndex((part) => text.includes(part));
+  return index === -1 ? order.length : index;
+}
+
+function mockupLabel(mockup: LaunchSummary["mockups"][number]): string {
+  const text = searchableMockupText(mockup);
+  if (/\bfront\b/i.test(text)) return "Front";
+  if (/\bback\b/i.test(text)) return "Back";
+  if (/side.?45/i.test(text)) return "Side 45";
+  if (/\bside\b/i.test(text)) return "Side";
+  if (/\bflat\b/i.test(text)) return "Flat";
+  if (/detail|close.?up|closeup/i.test(text)) return "Detail close-up";
+  if (/vto|virtual|try.?on/i.test(text)) return "Virtual try-on";
+  if (/lifestyle|scene/i.test(text)) return "Lifestyle";
+  return titleCase(assetLabel(mockup.image_url || mockup.external_key, "Mockup"));
+}
+
+function searchableMockupText(mockup: LaunchSummary["mockups"][number]): string {
+  return [mockup.external_key, mockup.image_url, mockup.id].filter(Boolean).join(" ");
+}
+
+function assetLink(label: string, url: string | null, fallbackId: string): string {
+  if (!url) {
+    return `${label} (${fallbackId})`;
+  }
+  return `[${label}](${url})`;
+}
+
+function assetLabel(urlOrKey: string | null, fallback: string): string {
+  if (!urlOrKey) {
+    return fallback;
+  }
+  const basename = urlOrKey.split("?")[0]?.split("/").pop() || urlOrKey;
+  const withoutExt = basename.replace(/\.[a-z0-9]+$/i, "");
+  const parts = withoutExt
+    .replace(/[a-f0-9]{8,}(-[a-f0-9]{4,})*/gi, "")
+    .split(/[_\-\s]+/)
+    .filter(Boolean);
+  const normalizedParts = parts.map((part) => part.toLowerCase());
+  if (normalizedParts.includes("front")) {
+    return "Cropped front placement";
+  }
+  if (normalizedParts.includes("back")) {
+    return "Cropped back placement";
+  }
+  return parts.length ? titleCase(parts.join(" ")) : fallback;
+}
+
+function titleCase(value: string): string {
+  return value
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .replace(/\w\S*/g, (word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase());
 }
 
 function parseArgs(args: string[]): Options {
@@ -290,7 +391,7 @@ function parseArgs(args: string[]): Options {
     } else if (arg === "--quality") {
       const quality = readValue(args, ++index, arg);
       if (quality !== "standard" && quality !== "pro") {
-        throw new Error("--quality must be standard or pro");
+        throw new Error(`--quality must be 'pro' or 'standard' (got '${quality}')`);
       }
       options.quality = quality;
     } else if (arg === "--limit") {
