@@ -276,7 +276,7 @@ function renderMockupSections(mockups: LaunchSummary["mockups"]): string {
     .filter((section) => grouped.has(section))
     .map((section) => {
       const lines = sortMockups(grouped.get(section) || [])
-        .map((mockup) => `- ${assetLink(mockupLabel(mockup), mockup.image_url, mockup.id)}`)
+        .map((mockup) => `- ${assetLink(mockupLabel(mockup, section), mockup.image_url, mockup.id)}`)
         .join("\n");
       return [`### ${section}`, lines].join("\n");
     })
@@ -311,13 +311,20 @@ function orderIndex(text: string, order: string[]): number {
   return index === -1 ? order.length : index;
 }
 
-function mockupLabel(mockup: LaunchSummary["mockups"][number]): string {
+function mockupLabel(mockup: LaunchSummary["mockups"][number], section: string): string {
   const text = searchableMockupText(mockup);
-  if (/\bfront\b/i.test(text)) return "Front";
-  if (/\bback\b/i.test(text)) return "Back";
+  if (section === "Product Flats") {
+    if (hasToken(text, "front")) return "Front Product Flat Image";
+    if (hasToken(text, "back")) return "Back Product Flat Image";
+    if (/side.?45/i.test(text)) return "Side 45 Product Flat Image";
+    if (hasToken(text, "side")) return "Side Product Flat Image";
+    return "Product Flat Image";
+  }
+  if (hasToken(text, "front")) return "Front";
+  if (hasToken(text, "back")) return "Back";
   if (/side.?45/i.test(text)) return "Side 45";
-  if (/\bside\b/i.test(text)) return "Side";
-  if (/\bflat\b/i.test(text)) return "Flat";
+  if (hasToken(text, "side")) return "Side";
+  if (hasToken(text, "flat")) return "Flat";
   if (/detail|close.?up|closeup/i.test(text)) return "Detail close-up";
   if (/vto|virtual|try.?on/i.test(text)) return "Virtual try-on";
   if (/lifestyle|scene/i.test(text)) return "Lifestyle";
@@ -326,6 +333,10 @@ function mockupLabel(mockup: LaunchSummary["mockups"][number]): string {
 
 function searchableMockupText(mockup: LaunchSummary["mockups"][number]): string {
   return [mockup.external_key, mockup.image_url, mockup.id].filter(Boolean).join(" ");
+}
+
+function hasToken(value: string, token: string): boolean {
+  return new RegExp(`(^|[^a-z0-9])${token}([^a-z0-9]|$)`, "i").test(value);
 }
 
 function assetLink(label: string, url: string | null, fallbackId: string): string {
