@@ -10,6 +10,8 @@ export interface CatalogProduct {
   brand: string;
   default_technique: string | null;
   category: string;
+  product_tier?: string;
+  genders?: string[];
 }
 
 export interface ListBlanksInput {

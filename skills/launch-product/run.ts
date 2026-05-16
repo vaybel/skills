@@ -206,8 +206,34 @@ function buildPrompt(prompt: string, brand: BrandDNA, product: CatalogProduct): 
     }
   }
   context.push(`Target blank: ${product.title || product.name || product.uuid}`);
+  if (isAopProduct(product)) {
+    context.push(
+      "AOP direction: create a full-garment, edge-to-edge all-over-print suitable for front and back flats. Avoid a single centered chest graphic unless the user explicitly asks for placement art.",
+    );
+  }
 
   return [prompt.trim(), ...context].join("\n\n");
+}
+
+function isAopProduct(product: CatalogProduct): boolean {
+  const technique = (product.default_technique || "").toLowerCase();
+  const searchable = [
+    product.vaybel_sku,
+    product.handle,
+    product.name,
+    product.title,
+    product.type,
+    product.category,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return (
+    technique === "cut-sew" ||
+    technique === "direct-to-fabric" ||
+    /\baop\b|all[- ]over[- ]print|cut[- ]sew/.test(searchable)
+  );
 }
 
 async function pollDesignStatus(taskId: string, timeoutSec: number) {
@@ -246,20 +272,26 @@ function sleep(ms: number): Promise<void> {
 
 function renderMarkdown(summary: LaunchSummary): string {
   const productTitle = summary.product.title || summary.product.uuid;
-  const designLabel = assetLabel(summary.design.image_url, "Design placement");
   const mockupSections = renderMockupSections(summary.mockups);
 
   return [
     "# Vaybel Launch Summary",
     "",
     `- Product: ${productTitle}`,
-    `- Design: ${assetLink(designLabel, summary.design.image_url, summary.design.id)}`,
+    `- Design: ${designLink(summary.design)}`,
     "",
     "## Mockups",
     mockupSections || "- none",
     "",
     `Continue in dashboard: ${summary.dashboard_url}`,
   ].join("\n");
+}
+
+function designLink(design: LaunchSummary["design"]): string {
+  if (!design.image_url) {
+    return `Generated design (${design.id})`;
+  }
+  return `[Generated design](${design.image_url})`;
 }
 
 function renderMockupSections(mockups: LaunchSummary["mockups"]): string {
@@ -357,6 +389,12 @@ function assetLabel(urlOrKey: string | null, fallback: string): string {
     .split(/[_\-\s]+/)
     .filter(Boolean);
   const normalizedParts = parts.map((part) => part.toLowerCase());
+  if (
+    normalizedParts.length &&
+    normalizedParts.every((part) => ["default", "design", "image"].includes(part))
+  ) {
+    return fallback;
+  }
   if (normalizedParts.includes("front")) {
     return "Cropped front placement";
   }
