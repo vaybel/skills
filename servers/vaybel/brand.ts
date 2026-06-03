@@ -13,5 +13,5 @@ export interface BrandDNA {
 }
 
 export function getBrandDNA(): Promise<BrandDNA> {
-  return callMCPTool<BrandDNA>("get_brand_dna");
+  return callMCPTool<BrandDNA>("brand_dna.get_brand_dna");
 }

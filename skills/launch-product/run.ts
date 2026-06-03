@@ -7,9 +7,9 @@ import {
   generateDesign,
   generateMockup,
   getBrandDNA,
-  getDesignStatus,
-  getMockupStatus,
   listBlanks,
+  waitForDesign,
+  waitForMockup,
 } from "../../servers/vaybel/index.js";
 
 const DEFAULT_CATEGORY = "shirt";
@@ -82,7 +82,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     prompt,
   });
 
-  const design = await pollDesignStatus(designTask.task_id, options.designTimeoutSec);
+  const design = await waitForDesign(designTask.task_id, options.designTimeoutSec);
   if (design.status !== "complete" || !design.design_id) {
     throw new Error(
       `Design did not complete: status=${design.status}, stage=${design.stage || "unknown"}, error=${design.error || "none"}`,
@@ -94,9 +94,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     quality: options.quality,
   });
 
-  const mockupStatus = mockupTask.task_id
-    ? await pollMockupStatus(mockupTask.mockup_ids, options.mockupTimeoutSec)
-    : await getMockupStatus(mockupTask.mockup_ids);
+  const mockupStatus = await waitForMockup(mockupTask.mockup_ids, options.mockupTimeoutSec);
 
   if (mockupStatus.status !== "complete") {
     throw new Error(`Mockups did not complete: status=${mockupStatus.status}`);
@@ -234,40 +232,6 @@ function isAopProduct(product: CatalogProduct): boolean {
     technique === "direct-to-fabric" ||
     /\baop\b|all[- ]over[- ]print|cut[- ]sew/.test(searchable)
   );
-}
-
-async function pollDesignStatus(taskId: string, timeoutSec: number) {
-  const deadline = Date.now() + timeoutSec * 1000;
-  let delayMs = 5000;
-  let last = await getDesignStatus(taskId);
-
-  while (last.status !== "complete" && last.status !== "failed" && Date.now() < deadline) {
-    await sleep(delayMs);
-    delayMs = Math.min(delayMs * 1.5, 20000);
-    last = await getDesignStatus(taskId);
-  }
-
-  return last;
-}
-
-async function pollMockupStatus(mockupIds: string[], timeoutSec: number) {
-  const deadline = Date.now() + timeoutSec * 1000;
-  let delayMs = 3000;
-  let last = await getMockupStatus(mockupIds);
-
-  while (last.status !== "complete" && last.status !== "failed" && Date.now() < deadline) {
-    await sleep(delayMs);
-    delayMs = Math.min(delayMs * 1.5, 15000);
-    last = await getMockupStatus(mockupIds);
-  }
-
-  return last;
-}
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
 }
 
 function renderMarkdown(summary: LaunchSummary): string {

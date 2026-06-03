@@ -164,8 +164,9 @@ function validateMarketplace(skillDirs) {
 
   for (const dir of skillDirs) {
     const frontmatter = parseFrontmatter(`${dir}/SKILL.md`);
-    if (!frontmatter.name) {
-      fail(`${dir}/SKILL.md missing skill name for /vaybel:<skill-name>`);
+    const expectedName = `vaybel:${path.basename(dir)}`;
+    if (frontmatter.name !== expectedName) {
+      fail(`${dir}/SKILL.md name must be ${expectedName} for namespaced /vaybel:<skill-name> commands`);
     }
   }
 }
@@ -238,15 +239,25 @@ function validateAssets() {
 
 function validateWrappers() {
   const expectedTools = [
-    "get_brand_dna",
-    "list_blanks",
-    "check_credits",
-    "generate_design",
-    "get_design_status",
-    "wait_for_design",
-    "generate_mockup",
-    "get_mockup_status",
-    "wait_for_mockup",
+    "brand_dna.get_brand_dna",
+    "catalog.list_blanks",
+    "credits.check_credits",
+    "design.generate_design",
+    "design.get",
+    "mockup.generate_mockup",
+    "mockup.get",
+    "trend.list_trends",
+    "trend.generate_launch_concept",
+    "trend.get",
+    "insight.get_overview",
+    "insight.list_design_performance",
+    "insight.get_guidance",
+    "optimize.optimize_product",
+    "optimize.get",
+    "content.generate",
+    "content.get",
+    "social_post.generate",
+    "social_post.publish",
   ];
   const wrapperText = walk(["servers/vaybel"]).map(read).join("\n");
   for (const tool of expectedTools) {

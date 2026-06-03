@@ -21,6 +21,10 @@ Then invoke:
 
 ```text
 /vaybel:launch-product "<idea>"
+/vaybel:find-trend tshirt --view brand
+/vaybel:optimize-product --provider printify --product-id <external-id>
+/vaybel:make-content <listing-id> --channels tiktok,instagram
+/vaybel:analyze-insights --range 28d
 ```
 
 ## Fallback: Local Clone
@@ -53,10 +57,14 @@ npm run validate
 npm run typecheck
 ```
 
-5. Ask the user for a product idea and invoke:
+5. Ask the user for the workflow input and invoke one of:
 
 ```text
 /vaybel:launch-product "<idea>"
+/vaybel:find-trend tshirt --view brand
+/vaybel:optimize-product --provider printify --product-id <external-id>
+/vaybel:make-content <listing-id> --channels tiktok,instagram
+/vaybel:analyze-insights --range 28d
 ```
 
 Do not ask the user for their PAT in chat. Have them set `VAYBEL_PAT` in their

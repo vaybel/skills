@@ -11,12 +11,16 @@ agent marketplaces.
 - [ ] `npm ci` succeeds.
 - [ ] `npm run validate` succeeds.
 - [ ] `npm run typecheck` succeeds.
-- [ ] `./setup --host codex`, `./setup --host claude`, and `./setup --host cursor`
-      create symlinks in a clean local account.
-- [ ] Live staging run succeeds with a sandbox PAT:
-      `npm run launch-product -- "minimal test tee" --quality standard --json`.
+- [ ] `npm run build` succeeds.
+- [ ] `npm audit --omit=dev --audit-level=moderate` succeeds.
+- [ ] Clean host-install smoke succeeds:
+      `scripts/smoke/host_install_smoke.sh`.
+- [ ] Live read-only smoke succeeds with a sandbox PAT:
+      `VAYBEL_PAT=... scripts/smoke/host_install_smoke.sh`.
+- [ ] Live write smoke succeeds only against sandbox data:
+      `VAYBEL_PAT=... VAYBEL_SMOKE_ENABLE_WRITES=1 VAYBEL_SMOKE_LISTING_ID=<listing-id> scripts/smoke/host_install_smoke.sh`.
 - [ ] No docs ask users to paste PATs into chat.
-- [ ] README clearly states that only `/vaybel:launch-product` ships in v1.
+- [ ] README lists all shipped workflow and insight skills.
 
 ## GitHub Release
 
@@ -47,9 +51,9 @@ agent marketplaces.
 
 - [ ] `.codex-plugin/plugin.json` points `skills` to `./skills`.
 - [ ] `interface.composerIcon` and `interface.logo` files exist.
-- [ ] `defaultPrompt` examples map to `/vaybel:launch-product`.
+- [ ] `defaultPrompt` examples map to shipped skills.
 - [ ] Install test from a fresh Codex profile.
-- [ ] Confirm the skill can read `SKILL.md` and run `npm run launch-product`.
+- [ ] Confirm the skills can read `SKILL.md` and run a bundled npm runner.
 
 ## Cursor Plugin
 
@@ -89,5 +93,4 @@ the existing MCP server and cross-link the skills repo:
 - [ ] Verify `VAYBEL_PAT` auth failure message is clear.
 - [ ] Verify staging happy path after publish.
 - [ ] Add marketplace URLs to README and Vaybel MCP docs.
-- [ ] Open follow-up issues for `find-trend`, `optimize-product`, and
-      `make-video` once public MCP tools exist.
+- [ ] Re-run one safe smoke for each shipped skill after publish.

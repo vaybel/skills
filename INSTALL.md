@@ -3,7 +3,7 @@
 ## Prerequisites
 
 - Node.js 20 or newer.
-- A Vaybel MCP PAT with catalog, brand DNA, credits, design, and mockup scopes.
+- A Vaybel MCP PAT with the scopes needed by the skills you plan to run.
 - Network access to `https://mcp.vaybel.com/`.
 
 Create a PAT in Vaybel at `Dashboard -> Settings -> MCP`.
@@ -13,7 +13,7 @@ settings and reuse `${VAYBEL_PAT}` from the Vaybel MCP config. For manual
 installs, export it:
 
 ```bash
-export VAYBEL_PAT="vbl_pat_live_..."
+export VAYBEL_PAT="<your-vaybel-pat>"
 ```
 
 Optional local/dev override:
@@ -32,7 +32,7 @@ Recommended setup:
 ```
 
 This reads `.claude-plugin/marketplace.json`, installs the `vaybel` plugin, and
-exposes `/vaybel:launch-product`.
+exposes the Vaybel workflow and insight skills.
 
 The plugin also accepts an optional sensitive `vaybel_pat` fallback, but do not
 use it if MCP already works through `VAYBEL_PAT`.
@@ -54,7 +54,11 @@ In your agent, run:
 
 ```text
 /vaybel:launch-product "minimal archive-style mountain race graphic"
+/vaybel:find-trend tshirt --view brand
+/vaybel:optimize-product --provider printify --product-id <external-id>
+/vaybel:make-content <listing-id> --channels tiktok,instagram
+/vaybel:analyze-insights --range 28d
 ```
 
-The skill should call the Vaybel MCP server, generate a design, generate flat
-mockups, and return a short summary with URLs.
+The skill should call the Vaybel MCP server and return a short workflow summary
+with URLs.

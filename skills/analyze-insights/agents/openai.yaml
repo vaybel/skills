@@ -1,0 +1,3 @@
+display_name: Vaybel Analyze Insights
+short_description: Summarize Vaybel performance, top designs, credits, and next actions.
+default_prompt: Show my Vaybel insights and next best action.

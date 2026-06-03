@@ -1,0 +1,3 @@
+display_name: Vaybel Make Content
+short_description: Generate Vaybel videos, image posts, and social drafts.
+default_prompt: Make social content for this Vaybel listing.

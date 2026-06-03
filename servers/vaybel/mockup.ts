@@ -8,8 +8,12 @@ export interface GenerateMockupInput {
 }
 
 export interface GenerateMockupResponse {
+  handle: string | null;
+  handles: string[];
   task_id: string;
   mockup_ids: string[];
+  status: "pending" | "complete";
+  message?: string;
 }
 
 export interface Mockup {
@@ -23,20 +27,24 @@ export interface Mockup {
 
 export interface MockupStatus {
   status: "pending" | "running" | "complete" | "failed";
+  handle?: string | string[];
+  resource_id?: string | null;
+  progress?: number | null;
+  done?: boolean;
   mockups: Mockup[];
 }
 
 export function generateMockup(input: GenerateMockupInput): Promise<GenerateMockupResponse> {
-  return callMCPTool<GenerateMockupResponse>("generate_mockup", input);
+  return callMCPTool<GenerateMockupResponse>("mockup.generate_mockup", input);
 }
 
 export function getMockupStatus(mockupIds: string[]): Promise<MockupStatus> {
-  return callMCPTool<MockupStatus>("get_mockup_status", { mockup_ids: mockupIds });
+  return callMCPTool<MockupStatus>("mockup.get", { handle: mockupIds });
 }
 
 export function waitForMockup(mockupIds: string[], timeoutSec = 300): Promise<MockupStatus> {
-  return callMCPTool<MockupStatus>("wait_for_mockup", {
-    mockup_ids: mockupIds,
-    timeout_sec: timeoutSec,
+  return callMCPTool<MockupStatus>("mockup.get", {
+    handle: mockupIds,
+    wait_sec: timeoutSec,
   });
 }

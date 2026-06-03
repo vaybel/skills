@@ -1,7 +1,7 @@
 {
   "name": "vaybel",
   "version": "0.1.0",
-  "description": "Vaybel skills: code-on-MCP workflows for turning apparel ideas into designs and flat mockups.",
+  "description": "Vaybel skills: code-on-MCP workflows for trend discovery, product launch, provider optimization, social content, and insights.",
   "author": {
     "name": "Vaybel",
     "email": "support@vaybel.com",
@@ -17,13 +17,16 @@
     "apparel",
     "print-on-demand",
     "design-generation",
-    "mockups"
+    "mockups",
+    "trend-discovery",
+    "social-content",
+    "insights"
   ],
   "skills": "./skills",
   "interface": {
     "displayName": "Vaybel",
-    "shortDescription": "Launch apparel products through Vaybel MCP",
-    "longDescription": "Vaybel Skills let Codex turn an apparel idea into a Vaybel design and flat mockups by executing TypeScript orchestration code against the public Vaybel MCP server.",
+    "shortDescription": "Run Vaybel workflows and insights through MCP",
+    "longDescription": "Vaybel Skills let Codex run curated trend discovery, product launch, provider-product optimization, social-content, and insights workflows by executing TypeScript orchestration code against the public Vaybel MCP server.",
     "developerName": "Vaybel",
     "category": "Design",
     "capabilities": [
@@ -32,9 +35,11 @@
     ],
     "websiteURL": "https://vaybel.com",
     "defaultPrompt": [
+      "Find a trend opportunity with Vaybel",
       "Launch a Vaybel product from this apparel idea",
-      "Generate a tee design and flat mockups with Vaybel",
-      "Try this all-over-print concept in Vaybel"
+      "Optimize this Printify product in Vaybel",
+      "Make social content for this Vaybel listing",
+      "Show my Vaybel insights and next action"
     ],
     "brandColor": "#111827",
     "composerIcon": "./assets/icon.svg",

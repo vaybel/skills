@@ -125,6 +125,7 @@ install_claude() {
   echo "Installed Vaybel Skills v$VERSION for Claude Code."
   echo "Use VAYBEL_PAT as the shared secret for both Vaybel MCP and Vaybel Skills."
   echo 'Restart Claude Code, then run: /vaybel:launch-product "washed archive tee graphic"'
+  echo 'Other skills: /vaybel:find-trend, /vaybel:optimize-product, /vaybel:make-content, /vaybel:analyze-insights'
 }
 
 case "$HOST" in
@@ -169,5 +170,5 @@ if [ ! -d "$ROOT/node_modules" ]; then
 fi
 
 if [ -z "${VAYBEL_PAT:-}" ] && [ -z "${VAYBEL_MCP_TOKEN:-}" ]; then
-  echo "Set VAYBEL_PAT before invoking /vaybel:launch-product."
+  echo "Set VAYBEL_PAT before invoking Vaybel skills."
 fi

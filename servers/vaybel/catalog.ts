@@ -27,5 +27,5 @@ export interface ListBlanksResponse {
 }
 
 export function listBlanks(input: ListBlanksInput = {}): Promise<ListBlanksResponse> {
-  return callMCPTool<ListBlanksResponse>("list_blanks", input);
+  return callMCPTool<ListBlanksResponse>("catalog.list_blanks", input);
 }

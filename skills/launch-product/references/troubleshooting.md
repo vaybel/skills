@@ -5,7 +5,7 @@
 Ask the user to set:
 
 ```bash
-export VAYBEL_PAT="vbl_pat_live_..."
+export VAYBEL_PAT="<your-vaybel-pat>"
 ```
 
 Do not ask them to paste the token into chat.

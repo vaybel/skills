@@ -19,11 +19,20 @@ aligned with the public Vaybel MCP surface.
 ```bash
 npm run validate
 npm run typecheck
+npm run build
+npm audit --omit=dev --audit-level=moderate
+```
+
+Before publishing or changing install metadata, also run:
+
+```bash
+scripts/smoke/host_install_smoke.sh
 ```
 
 ## Adding a Skill
 
-1. Add `skills/<workflow>/SKILL.md` and `skills/<workflow>/run.ts`.
+1. Add `skills/<workflow>/SKILL.md`, `skills/<workflow>/run.ts`, agent
+   metadata, and references when the workflow needs them.
 2. Add or reuse wrappers in `servers/vaybel/`.
 3. Update `.claude-plugin/marketplace.json`.
 4. Update `README.md`, `COOKBOOK.md`, and `DEPLOYMENT.md` if install or launch

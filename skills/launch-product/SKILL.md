@@ -1,5 +1,5 @@
 ---
-name: launch-product
+name: vaybel:launch-product
 version: 0.1.0
 description: |
   Launch a Vaybel product through the public MCP server. Use when the user wants
@@ -13,15 +13,15 @@ allowed-tools: Bash(npm *), Bash(node *), Read
 
 # Vaybel Launch Product
 
-Run this skill when the user wants to launch a Vaybel product idea. The v1
-scope is the MCP-backed slice of the Vaybel app workflow:
+Run this skill when the user wants to launch a Vaybel product idea. The
+scope is the product creation slice of the Vaybel app workflow:
 
 ```text
 Product -> Design -> Mockups
 ```
 
-Videos and listings are out of scope for v1. Return dashboard links so the
-user can continue manually.
+Content and provider-product import are handled by separate workflow skills.
+Return dashboard links so the user can continue manually.
 
 ## Execution
 

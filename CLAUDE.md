@@ -16,16 +16,21 @@ There is no Vaybel CLI dependency in v1.
 `client.ts` reads `VAYBEL_PAT` and attaches it to MCP calls. Optional:
 `VAYBEL_MCP_URL` overrides the default production endpoint.
 
-## Initial Scope
+## Skills
 
-Only `skills/launch-product` is real in v1. It covers:
+This repo ships four workflow skills that match the main Vaybel dashboard
+workflows, plus one read-only insights skill:
 
 ```text
-Product -> Design -> Mockups
+Find Trend
+Launch Product
+Optimize Product
+Make Content
+Analyze Insights
 ```
 
-Do not add placeholder skills for `find-trend`, `optimize-product`, or
-`make-video` until their public MCP tool surfaces exist.
+Keep skills aligned with the public MCP surface. Do not add private REST
+fallbacks or Vaybel CLI calls.
 
 ## Validation
 

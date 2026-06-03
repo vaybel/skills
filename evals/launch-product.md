@@ -13,10 +13,10 @@ Expected:
 - checks credits
 - reads brand DNA
 - selects a tee blank
-- calls `generate_design`
-- polls `get_design_status`
-- calls `generate_mockup`
-- polls `get_mockup_status`
+- calls `design.generate_design`
+- waits with `design.get`
+- calls `mockup.generate_mockup`
+- waits with `mockup.get`
 - returns product, design URL or ID, mockup URLs, and dashboard URL
 
 ## AOP Path

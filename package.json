@@ -11,7 +11,11 @@
   },
   "scripts": {
     "build": "tsc --outDir dist",
+    "find-trend": "npm run build --silent && node dist/skills/find-trend/run.js",
+    "analyze-insights": "npm run build --silent && node dist/skills/analyze-insights/run.js",
     "launch-product": "npm run build --silent && node dist/skills/launch-product/run.js",
+    "optimize-product": "npm run build --silent && node dist/skills/optimize-product/run.js",
+    "make-content": "npm run build --silent && node dist/skills/make-content/run.js",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate.mjs"
   },

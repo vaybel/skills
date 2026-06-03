@@ -1,0 +1,3 @@
+display_name: Vaybel Optimize Product
+short_description: Import and optimize existing Printify or Printful products.
+default_prompt: Optimize this connected provider product in Vaybel.

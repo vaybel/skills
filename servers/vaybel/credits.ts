@@ -5,11 +5,12 @@ export interface CheckCreditsInput {
 }
 
 export interface CheckCreditsResponse {
-  balance: number;
+  balance: number | null;
   required: number;
   sufficient: boolean;
+  billing_mode?: string;
 }
 
 export function checkCredits(input: CheckCreditsInput = {}): Promise<CheckCreditsResponse> {
-  return callMCPTool<CheckCreditsResponse>("check_credits", input);
+  return callMCPTool<CheckCreditsResponse>("credits.check_credits", input);
 }

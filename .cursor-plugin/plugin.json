@@ -3,7 +3,7 @@
   "name": "vaybel",
   "displayName": "Vaybel",
   "version": "0.1.0",
-  "description": "Vaybel skills: code-on-MCP workflows for turning apparel ideas into designs and flat mockups.",
+  "description": "Vaybel skills: code-on-MCP workflows for trend discovery, product launch, provider optimization, social content, and insights.",
   "author": {
     "name": "Vaybel",
     "email": "support@vaybel.com"
@@ -20,6 +20,9 @@
     "apparel",
     "print-on-demand",
     "design-generation",
-    "mockups"
+    "mockups",
+    "trend-discovery",
+    "social-content",
+    "insights"
   ]
 }
