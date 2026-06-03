@@ -8,6 +8,14 @@ description: |
   listings, content, social publishing, or importing provider products.
 argument-hint: [product-type] [--view all|brand|seasonal] [--match UUID] [--no-concept] [--limit N]
 allowed-tools: Bash(npm *), Bash(node *), Read
+metadata:
+  hermes:
+    tags: [vaybel, trend, discovery]
+    requires_tools: [terminal]
+required_environment_variables:
+  - name: VAYBEL_PAT
+    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    required_for: "Vaybel MCP access"
 ---
 
 # Vaybel Find Trend
@@ -37,6 +45,11 @@ npm --prefix "$PLUGIN_ROOT" run find-trend -- --no-concept
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
 call. If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install`
 once.
+
+On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
+`${HERMES_SKILL_DIR}/../..`. If the root is read-only (baked into an image), skip
+`npm run` (it rebuilds) and call the prebuilt runner directly:
+`node "${HERMES_SKILL_DIR}/../../dist/skills/find-trend/run.js" [product-type] --view brand --json`.
 
 ## Required Environment
 

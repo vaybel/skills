@@ -9,6 +9,14 @@ description: |
   social drafts, or publishing.
 argument-hint: [--range 7d|28d] [--channel all|tiktok|etsy|shopify|instagram] [--sort gmv|orders|views] [--limit N]
 allowed-tools: Bash(npm *), Bash(node *), Read
+metadata:
+  hermes:
+    tags: [vaybel, insights, analytics]
+    requires_tools: [terminal]
+required_environment_variables:
+  - name: VAYBEL_PAT
+    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    required_for: "Vaybel MCP access"
 ---
 
 # Vaybel Analyze Insights
@@ -38,6 +46,11 @@ npm --prefix "$PLUGIN_ROOT" run analyze-insights -- --no-designs --no-credits
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
 call. If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install`
 once.
+
+On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
+`${HERMES_SKILL_DIR}/../..`. If the root is read-only (baked into an image), skip
+`npm run` (it rebuilds) and call the prebuilt runner directly:
+`node "${HERMES_SKILL_DIR}/../../dist/skills/analyze-insights/run.js" --range 28d --json`.
 
 ## Required Environment
 

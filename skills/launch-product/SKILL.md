@@ -9,6 +9,14 @@ description: |
   workflow requiring private REST APIs.
 argument-hint: <prompt-or-theme> [--product UUID-or-SKU] [--category tee|hoodie|...] [--technique dtg|aop|embroidery] [--quality pro|standard]
 allowed-tools: Bash(npm *), Bash(node *), Read
+metadata:
+  hermes:
+    tags: [vaybel, product, design, mockup]
+    requires_tools: [terminal]
+required_environment_variables:
+  - name: VAYBEL_PAT
+    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    required_for: "Vaybel MCP access"
 ---
 
 # Vaybel Launch Product
@@ -35,6 +43,10 @@ Resolve `$PLUGIN_ROOT` as the **absolute** path of the plugin root:
 - Otherwise, derive it from this SKILL.md's base directory (shown in the
   skill prompt header). Strip the trailing `skills/launch-product` to get the
   plugin root.
+- On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
+  `${HERMES_SKILL_DIR}/../..`. If the root is read-only (e.g. baked into an
+  image), skip `npm run` (it rebuilds) and call the prebuilt runner directly:
+  `node "${HERMES_SKILL_DIR}/../../dist/skills/launch-product/run.js" "<prompt-or-theme>" --json`.
 
 Then invoke:
 

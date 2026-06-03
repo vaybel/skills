@@ -9,6 +9,14 @@ description: |
   generation, mockup generation, or listing creation.
 argument-hint: <listing-id> [--format video|slideshow|carousel|single] [--channels tiktok,instagram,youtube,x] [--publish]
 allowed-tools: Bash(npm *), Bash(node *), Read
+metadata:
+  hermes:
+    tags: [vaybel, content, social]
+    requires_tools: [terminal]
+required_environment_variables:
+  - name: VAYBEL_PAT
+    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    required_for: "Vaybel MCP access"
 ---
 
 # Vaybel Make Content
@@ -38,6 +46,11 @@ npm --prefix "$PLUGIN_ROOT" run make-content -- <listing-id> --channels tiktok -
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
 call. If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install`
 once.
+
+On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
+`${HERMES_SKILL_DIR}/../..`. If the root is read-only (baked into an image), skip
+`npm run` (it rebuilds) and call the prebuilt runner directly:
+`node "${HERMES_SKILL_DIR}/../../dist/skills/make-content/run.js" <listing-id> --channels tiktok,instagram,youtube,x --json`.
 
 ## Required Environment
 
