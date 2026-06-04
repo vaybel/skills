@@ -1,5 +1,18 @@
 import { callMCPTool } from "../../client.js";
 
+export type AudienceGender = "men" | "women" | string;
+
+export interface BrandAudience {
+  key: string;
+  label: string;
+  gender_options: AudienceGender[];
+  ethnicity_options?: string[];
+  age_range?: {
+    min: number | null;
+    max: number | null;
+  };
+}
+
 export interface BrandDNA {
   has_brand_kit: boolean;
   brand_description: string;
@@ -10,6 +23,7 @@ export interface BrandDNA {
   product_types: string[];
   logo_url: string | null;
   logo_description: string | null;
+  audiences?: BrandAudience[];
 }
 
 export function getBrandDNA(): Promise<BrandDNA> {

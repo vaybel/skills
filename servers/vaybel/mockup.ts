@@ -1,9 +1,14 @@
 import { callMCPTool } from "../../client.js";
 
 export type MockupQuality = "standard" | "pro";
+export type MockupKind = "flat" | "detail_closeup" | "vto";
+export type MockupGender = "men" | "women";
 
 export interface GenerateMockupInput {
   design_id: string;
+  kinds?: MockupKind[];
+  audience_key?: string;
+  gender?: MockupGender;
   quality?: MockupQuality;
 }
 
@@ -12,6 +17,7 @@ export interface GenerateMockupResponse {
   handles: string[];
   task_id: string;
   mockup_ids: string[];
+  kinds: MockupKind[];
   status: "pending" | "complete";
   message?: string;
 }

@@ -3,8 +3,8 @@ name: vaybel:launch-product
 version: 0.1.0
 description: |
   Launch a Vaybel product through the public MCP server. Use when the user wants
-  to create a new apparel product, turn a prompt into a design, generate flat
-  mockups, explore a tee or hoodie idea, or test an AOP concept. NOT for trend
+  to create a new apparel product, turn a prompt into a design, generate
+  listing-ready mockups, explore a tee or hoodie idea, or test an AOP concept. NOT for trend
   discovery, listing optimization, video generation, social publishing, or any
   workflow requiring private REST APIs.
 argument-hint: <prompt-or-theme> [--product UUID-or-SKU] [--category tee|hoodie|...] [--technique dtg|aop|embroidery] [--quality pro|standard]
@@ -65,9 +65,10 @@ npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --quality 
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
 call — do not rely on the shell expanding an unset variable.
 
-The `--quality` option only accepts `pro` or `standard`. Translate the user's
-wording before invoking: "premium / high / best / hi-res" → `pro`; "draft /
-fast / cheap / low" → `standard`. Default is `pro` when unspecified.
+The `--quality` option only accepts `pro` or `standard` and controls product
+flats. Translate the user's wording before invoking: "premium / high / best /
+hi-res" → `pro`; "draft / fast / cheap / low" → `standard`. Default is `pro`
+when unspecified.
 
 If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install` once.
 
@@ -91,9 +92,24 @@ The runner will:
 3. Resolve a catalog product from `--product`, or choose one with catalog
    filters.
 4. Generate the design and wait for completion.
-5. Generate flat mockups and wait for completion.
+5. Generate listing-ready mockups and wait for completion.
 6. Print a short launch summary with product, design, grouped mockup links, and
    the Vaybel dashboard URL.
+
+Mockup policy:
+
+- Always request product flats (`flat`) and studio virtual try-on (`vto`) so the
+  result has at least five listing images: front/back flats plus front/side/back
+  VTO.
+- Select the first Brand DNA audience whose `gender_options` overlap the
+  product. For one-gender products, pass that gender. For unisex products with
+  both genders available, let the MCP server choose the first valid created
+  virtual model.
+- Add detail close-ups (`detail_closeup`) for DTG/non-AOP products. Skip them
+  for AOP products because product flats and VTO are more useful listing assets.
+- Stop before design generation if Brand DNA has no compatible audience for
+  VTO. The five-image listing minimum cannot be met without an audience-backed
+  virtual model.
 
 ## Rules
 

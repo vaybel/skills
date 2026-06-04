@@ -2,6 +2,8 @@ import { closeMCPClient } from "../../client.js";
 import {
   type BrandDNA,
   type CatalogProduct,
+  type MockupGender,
+  type MockupKind,
   type MockupQuality,
   checkCredits,
   generateDesign,
@@ -17,7 +19,11 @@ const DEFAULT_LIMIT = 10;
 const DEFAULT_DESIGN_TIMEOUT = 600;
 const DEFAULT_MOCKUP_TIMEOUT = 300;
 const DESIGN_CREDITS = 10;
-const PRO_MOCKUP_PREFLIGHT_CREDITS = 2;
+const MOCKUP_CREDIT_UNIT = 2;
+const FLAT_MOCKUP_COUNT = 2;
+const VTO_MOCKUP_COUNT = 3;
+const DETAIL_CLOSEUP_COUNT = 3;
+const LISTING_MINIMUM_MOCKUPS = 5;
 
 interface Options {
   prompt: string;
@@ -38,6 +44,7 @@ interface LaunchSummary {
     id: string;
     image_url: string | null;
   };
+  mockup_plan: MockupPlanSummary;
   mockups: Array<{
     id: string;
     external_key: string;
@@ -45,6 +52,21 @@ interface LaunchSummary {
     status: string;
   }>;
   dashboard_url: string;
+}
+
+interface MockupPlan {
+  kinds: MockupKind[];
+  audience_key: string;
+  audience_label: string;
+  gender?: MockupGender;
+  expected_count: number;
+  detail_closeups: "included" | "skipped_for_aop";
+}
+
+interface MockupPlanSummary extends MockupPlan {
+  listing_minimum: number;
+  completed_count: number;
+  listing_ready: boolean;
 }
 
 async function main(): Promise<void> {
@@ -65,16 +87,15 @@ async function main(): Promise<void> {
 async function launchProduct(options: Options): Promise<LaunchSummary> {
   preflightEnvironment();
 
-  const requiredCredits =
-    DESIGN_CREDITS + (options.quality === "pro" ? PRO_MOCKUP_PREFLIGHT_CREDITS : 0);
+  const [brand, product] = await Promise.all([getBrandDNA(), resolveProduct(options)]);
+  const mockupPlan = buildMockupPlan(product, brand);
+  const requiredCredits = DESIGN_CREDITS + estimateMockupCredits(mockupPlan);
   const credits = await checkCredits({ required: requiredCredits });
   if (!credits.sufficient) {
     throw new Error(
       `Insufficient credits: balance=${credits.balance}, required=${credits.required}`,
     );
   }
-
-  const [brand, product] = await Promise.all([getBrandDNA(), resolveProduct(options)]);
 
   const prompt = buildPrompt(options.prompt, brand, product);
   const designTask = await generateDesign({
@@ -91,6 +112,9 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
 
   const mockupTask = await generateMockup({
     design_id: design.design_id,
+    kinds: mockupPlan.kinds,
+    audience_key: mockupPlan.audience_key,
+    ...(mockupPlan.gender ? { gender: mockupPlan.gender } : {}),
     quality: options.quality,
   });
 
@@ -100,18 +124,32 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     throw new Error(`Mockups did not complete: status=${mockupStatus.status}`);
   }
 
+  const mockups = mockupStatus.mockups.map((mockup) => ({
+    id: mockup.id,
+    external_key: mockup.external_key,
+    image_url: mockup.image_url,
+    status: mockup.status,
+  }));
+  const completedCount = listingReadyMockupCount(mockups);
+  if (completedCount < LISTING_MINIMUM_MOCKUPS) {
+    throw new Error(
+      `Listing mockup minimum not met: expected at least ${LISTING_MINIMUM_MOCKUPS} completed image mockups, got ${completedCount}`,
+    );
+  }
+
   return {
     product,
     design: {
       id: design.design_id,
       image_url: design.image_url,
     },
-    mockups: mockupStatus.mockups.map((mockup) => ({
-      id: mockup.id,
-      external_key: mockup.external_key,
-      image_url: mockup.image_url,
-      status: mockup.status,
-    })),
+    mockup_plan: {
+      ...mockupPlan,
+      listing_minimum: LISTING_MINIMUM_MOCKUPS,
+      completed_count: completedCount,
+      listing_ready: completedCount >= LISTING_MINIMUM_MOCKUPS,
+    },
+    mockups,
     dashboard_url: dashboardUrl(design.design_id),
   };
 }
@@ -213,6 +251,117 @@ function buildPrompt(prompt: string, brand: BrandDNA, product: CatalogProduct): 
   return [prompt.trim(), ...context].join("\n\n");
 }
 
+function buildMockupPlan(product: CatalogProduct, brand: BrandDNA): MockupPlan {
+  const audience = selectVtoAudience(product, brand);
+  if (!audience) {
+    throw new Error(
+      "Listing-ready mockups require a Brand DNA audience with VTO-compatible gender options. Add or update an audience in Vaybel Brand Kit, then rerun.",
+    );
+  }
+
+  const kinds: MockupKind[] = ["flat", "vto"];
+  const includeDetailCloseups = !isAopProduct(product);
+  if (includeDetailCloseups) {
+    kinds.push("detail_closeup");
+  }
+
+  const plan: MockupPlan = {
+    kinds,
+    audience_key: audience.key,
+    audience_label: audience.label,
+    expected_count:
+      FLAT_MOCKUP_COUNT + VTO_MOCKUP_COUNT + (includeDetailCloseups ? DETAIL_CLOSEUP_COUNT : 0),
+    detail_closeups: includeDetailCloseups ? "included" : "skipped_for_aop",
+  };
+  if (audience.gender) {
+    plan.gender = audience.gender;
+  }
+  return plan;
+}
+
+function selectVtoAudience(
+  product: CatalogProduct,
+  brand: BrandDNA,
+): { key: string; label: string; gender?: MockupGender } | null {
+  const audiences = (brand.audiences || []).filter((audience) => audience.key);
+  if (!audiences.length) {
+    return null;
+  }
+
+  const productGenders = normalizedVtoGenders(product.genders);
+  for (const audience of audiences) {
+    const audienceGenders = normalizedVtoGenders(audience.gender_options);
+    if (!audienceGenders.length) {
+      continue;
+    }
+
+    if (!productGenders.length) {
+      return {
+        key: audience.key,
+        label: audience.label || audience.key,
+      };
+    }
+
+    const overlap = productGenders.filter((gender) => audienceGenders.includes(gender));
+    if (overlap.length) {
+      const selection: { key: string; label: string; gender?: MockupGender } = {
+        key: audience.key,
+        label: audience.label || audience.key,
+      };
+      const gender = overlap.length === 1 ? overlap[0] : undefined;
+      if (gender) {
+        selection.gender = gender;
+      }
+      return selection;
+    }
+  }
+
+  return null;
+}
+
+function normalizedVtoGenders(values: Array<string | undefined> | undefined): MockupGender[] {
+  const genders: MockupGender[] = [];
+  for (const value of values || []) {
+    if (isUnisexGenderValue(value)) {
+      for (const gender of ["men", "women"] as const) {
+        if (!genders.includes(gender)) {
+          genders.push(gender);
+        }
+      }
+      continue;
+    }
+
+    const normalized = normalizeVtoGender(value);
+    if (normalized && !genders.includes(normalized)) {
+      genders.push(normalized);
+    }
+  }
+  return genders;
+}
+
+function isUnisexGenderValue(value: string | undefined): boolean {
+  return /^(unisex|all[-_\s]?gender|all|any)$/i.test((value || "").trim());
+}
+
+function normalizeVtoGender(value: string | undefined): MockupGender | null {
+  const normalized = (value || "").trim().toLowerCase();
+  if (["men", "mens", "men's", "male", "males"].includes(normalized)) {
+    return "men";
+  }
+  if (["women", "womens", "women's", "female", "females", "ladies"].includes(normalized)) {
+    return "women";
+  }
+  return null;
+}
+
+function estimateMockupCredits(plan: MockupPlan): number {
+  return plan.expected_count * MOCKUP_CREDIT_UNIT;
+}
+
+function listingReadyMockupCount(mockups: LaunchSummary["mockups"]): number {
+  return mockups.filter((mockup) => mockup.status === "complete" && Boolean(mockup.image_url)).length;
+}
+
 function isAopProduct(product: CatalogProduct): boolean {
   const technique = (product.default_technique || "").toLowerCase();
   const searchable = [
@@ -237,18 +386,32 @@ function isAopProduct(product: CatalogProduct): boolean {
 function renderMarkdown(summary: LaunchSummary): string {
   const productTitle = summary.product.title || summary.product.uuid;
   const mockupSections = renderMockupSections(summary.mockups);
+  const plan = summary.mockup_plan;
 
   return [
     "# Vaybel Launch Summary",
     "",
     `- Product: ${productTitle}`,
     `- Design: ${designLink(summary.design)}`,
+    `- Mockup plan: ${mockupPlanLabel(plan)}`,
+    `- Listing-ready mockups: ${plan.completed_count}/${plan.listing_minimum}`,
     "",
     "## Mockups",
     mockupSections || "- none",
     "",
     `Continue in dashboard: ${summary.dashboard_url}`,
   ].join("\n");
+}
+
+function mockupPlanLabel(plan: MockupPlanSummary): string {
+  const parts = ["front/back product flats", "3 VTO"];
+  if (plan.detail_closeups === "included") {
+    parts.push("DTG/detail close-ups");
+  }
+  const audience = plan.gender
+    ? `${plan.audience_label} (${plan.audience_key}, ${plan.gender})`
+    : `${plan.audience_label} (${plan.audience_key}, server-selected gender)`;
+  return `${parts.join(" + ")} via ${audience}`;
 }
 
 function designLink(design: LaunchSummary["design"]): string {

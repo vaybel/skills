@@ -27,3 +27,13 @@ Vaybel. Do not start a second design automatically.
 
 Return the mockup status. Do not dispatch another mockup batch unless the user
 explicitly asks.
+
+## No VTO Audience Or Model
+
+The launch-product runner requests VTO to meet the five-mockup listing minimum.
+If Brand DNA has no compatible audience, stop before design generation and ask
+the user to add an audience in Vaybel Brand Kit.
+
+If `mockup.generate_mockup` reports that no virtual model exists for the chosen
+audience, tell the user the audience needs a created virtual model before VTO can
+run. Do not fake the listing-ready minimum with only flats or detail close-ups.

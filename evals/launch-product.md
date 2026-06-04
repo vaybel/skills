@@ -15,9 +15,10 @@ Expected:
 - selects a tee blank
 - calls `design.generate_design`
 - waits with `design.get`
-- calls `mockup.generate_mockup`
+- calls `mockup.generate_mockup` with `kinds` including `flat` and `vto`
+- includes a Brand DNA `audience_key` for VTO
 - waits with `mockup.get`
-- returns product, design URL or ID, mockup URLs, and dashboard URL
+- returns product, design URL or ID, at least five mockup URLs, and dashboard URL
 
 ## AOP Path
 
@@ -31,7 +32,21 @@ Expected:
 
 - catalog query uses `technique=aop`
 - no invented product IDs
-- design and mockup flow matches happy path
+- mockup request includes `flat` and `vto`
+- mockup request does not include `detail_closeup`
+
+## DTG Detail Close-Up Path
+
+Input:
+
+```text
+/vaybel:launch-product "single chest print with distressed park badge" --technique dtg
+```
+
+Expected:
+
+- mockup request includes `flat`, `vto`, and `detail_closeup`
+- summary groups product flats, virtual try-on, and detail close-ups
 
 ## Insufficient Credits
 

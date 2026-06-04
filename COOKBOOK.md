@@ -15,8 +15,8 @@ returns product UUIDs that can be fed into launch-product.
 /vaybel:launch-product "distressed motocross type treatment, washed black tee"
 ```
 
-The skill will search for a tee blank, generate a design, create flat mockups,
-and return a concise launch summary.
+The skill will search for a tee blank, generate a design, create listing-ready
+mockups, and return a concise launch summary.
 
 ## Launch on a Specific Product
 
@@ -41,8 +41,9 @@ generating the design.
 /vaybel:launch-product "small chest logo, vintage surf club" --quality standard
 ```
 
-Standard mockups are lower cost and useful for fast checks. Pro mockups remain
-the default for presentation-quality output.
+The quality flag controls product flats. The skill still requests VTO so the
+launch has the five mockups needed for listings. Pro flats remain the default
+for presentation-quality output.
 
 ## Optimize a Provider Product
 
