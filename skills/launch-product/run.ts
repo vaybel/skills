@@ -23,6 +23,11 @@ const DEFAULT_LIMIT = 10;
 const DEFAULT_DESIGN_TIMEOUT = 600;
 const DEFAULT_MOCKUP_TIMEOUT = 300;
 const DEFAULT_PRODUCT_VIDEO_TIMEOUT = 600;
+// Design generation can transiently fail server-side ("Pipeline returned None").
+// Retry the generate+poll a bounded number of times before giving up — a
+// controlled, in-runner retry of a known-flaky step (not blind agent retrying).
+const DESIGN_ATTEMPTS = 3; // initial attempt + 2 retries
+const DESIGN_RETRY_BACKOFF_MS = 5000;
 const DESIGN_CREDITS = 10;
 const MOCKUP_CREDIT_UNIT = 2;
 const FLAT_MOCKUP_COUNT = 2;
@@ -129,16 +134,31 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
   }
 
   const prompt = buildPrompt(options.prompt, brand, product);
-  const designTask = await generateDesign({
-    product_uuid: product.uuid,
-    prompt,
-  });
-  const designHandle = asyncHandle(designTask, "design.generate_design");
 
-  const design = await waitForDesign(designHandle, options.designTimeoutSec);
-  if (design.status !== "complete" || !design.design_id) {
+  let design: Awaited<ReturnType<typeof waitForDesign>> | undefined;
+  let lastDesignFailure = "";
+  for (let attempt = 1; attempt <= DESIGN_ATTEMPTS; attempt += 1) {
+    const designTask = await generateDesign({
+      product_uuid: product.uuid,
+      prompt,
+    });
+    const designHandle = asyncHandle(designTask, "design.generate_design");
+    const candidate = await waitForDesign(designHandle, options.designTimeoutSec);
+    if (candidate.status === "complete" && candidate.design_id) {
+      design = candidate;
+      break;
+    }
+    lastDesignFailure = `status=${candidate.status}, stage=${candidate.stage || "unknown"}, error=${candidate.error || "none"}`;
+    if (attempt < DESIGN_ATTEMPTS) {
+      console.error(
+        `design generation attempt ${attempt}/${DESIGN_ATTEMPTS} did not complete (${lastDesignFailure}); retrying after ${DESIGN_RETRY_BACKOFF_MS}ms`,
+      );
+      await sleep(DESIGN_RETRY_BACKOFF_MS);
+    }
+  }
+  if (!design || !design.design_id) {
     throw new Error(
-      `Design did not complete: status=${design.status}, stage=${design.stage || "unknown"}, error=${design.error || "none"}`,
+      `Design did not complete after ${DESIGN_ATTEMPTS} attempts: ${lastDesignFailure}`,
     );
   }
 
@@ -150,7 +170,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     quality: options.quality,
   });
 
-  const mockupStatus = await waitForMockup(mockupTask.mockup_ids, options.mockupTimeoutSec);
+  const mockupStatus = await waitForMockup(mockupHandles(mockupTask), options.mockupTimeoutSec);
 
   if (mockupStatus.status !== "complete") {
     throw new Error(`Mockups did not complete: status=${mockupStatus.status}`);
@@ -500,6 +520,27 @@ function asyncHandle(result: { handle?: string; task_id?: string }, toolName: st
     throw new Error(`${toolName} did not return a polling handle`);
   }
   return handle;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+// mockup.generate_mockup returns its poll handles under `handles` now (was
+// `mockup_ids`); tolerate either, plus the singular handle/task_id, so a
+// server-side field rename can't strand the poll with no handle (which surfaces
+// as `mockup.get failed: handle Missing required argument`).
+function mockupHandles(result: {
+  handles?: string[];
+  mockup_ids?: string[];
+  handle?: string | null;
+  task_id?: string;
+}): string[] {
+  if (result.handles && result.handles.length) return result.handles;
+  if (result.mockup_ids && result.mockup_ids.length) return result.mockup_ids;
+  if (result.handle) return [result.handle];
+  if (result.task_id) return [result.task_id];
+  throw new Error("mockup.generate_mockup did not return any mockup handles");
 }
 
 function unique<T>(values: T[]): T[] {
