@@ -18,10 +18,18 @@ export class VaybelMCPError extends Error {
 
 export async function callMCPTool<T>(name: string, input: ToolInput = {}): Promise<T> {
   const client = await getClient();
-  const result = await client.callTool({
-    name,
-    arguments: compactInput(input),
-  });
+  const args = compactInput(input);
+
+  // Long-poll calls (design.get, mockup.get, listing.get, product_video.get, …)
+  // pass `wait_sec`: the server holds the request open up to that many seconds
+  // while the task runs. The MCP SDK's default request timeout is 60s, so any
+  // wait_sec > 60 poll is aborted client-side with `-32001` long before the
+  // task finishes (design generation legitimately takes a few minutes). Scale
+  // the client request timeout to comfortably exceed the server's hold.
+  const waitSec = typeof args.wait_sec === "number" ? args.wait_sec : 0;
+  const options = waitSec > 0 ? { timeout: (waitSec + 30) * 1000 } : undefined;
+
+  const result = await client.callTool({ name, arguments: args }, undefined, options);
 
   return unwrapToolResult<T>(name, result);
 }
