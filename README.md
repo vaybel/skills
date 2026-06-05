@@ -17,7 +17,8 @@ There is no CLI dependency in v1. Skills call MCP through the small wrappers in
 - `/vaybel:find-trend` - find a trend opportunity and generate a launch
   concept.
 - `/vaybel:launch-product` - select a blank, generate a design, generate
-  listing-ready mockups, and return concise launch links.
+  listing-ready mockups, optionally generate listing product videos, and return
+  concise launch links.
 - `/vaybel:optimize-product` - import and optimize an existing Printify or
   Printful product.
 - `/vaybel:make-content` - generate a video, slideshow, carousel, or single
@@ -48,6 +49,7 @@ settings, and reference it from the Vaybel MCP server config. Then run:
 
 ```text
 /vaybel:launch-product "washed trail running poster art on a heavyweight tee"
+/vaybel:launch-product "washed trail running poster art on a heavyweight tee" --listing-channels tiktok_shop,etsy
 /vaybel:find-trend tshirt --view brand
 /vaybel:optimize-product --provider printify --product-id <external-id>
 /vaybel:make-content <listing-id> --channels tiktok,instagram

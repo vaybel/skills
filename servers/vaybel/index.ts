@@ -8,4 +8,5 @@ export * from "./listing.js";
 export * from "./mockup.js";
 export * from "./optimize.js";
 export * from "./ping.js";
+export * from "./product-video.js";
 export * from "./trend.js";

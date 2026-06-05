@@ -37,3 +37,12 @@ the user to add an audience in Vaybel Brand Kit.
 If `mockup.generate_mockup` reports that no virtual model exists for the chosen
 audience, tell the user the audience needs a created virtual model before VTO can
 run. Do not fake the listing-ready minimum with only flats or detail close-ups.
+
+## Product Video Failure
+
+Product videos require completed VTO mockups. If `product_video.generate` says
+VTO mockups are missing or pending, return that status and do not retry video
+generation until mockups are complete.
+
+If a requested listing channel is Shopify only, skip product-video generation.
+The public MCP video tool supports TikTok Shop and Etsy product videos.

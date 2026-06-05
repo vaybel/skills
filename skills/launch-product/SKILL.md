@@ -7,7 +7,7 @@ description: |
   listing-ready mockups, explore a tee or hoodie idea, or test an AOP concept. NOT for trend
   discovery, listing optimization, video generation, social publishing, or any
   workflow requiring private REST APIs.
-argument-hint: <prompt-or-theme> [--product UUID-or-SKU] [--category tee|hoodie|...] [--technique dtg|aop|embroidery] [--quality pro|standard]
+argument-hint: <prompt-or-theme> [--product UUID-or-SKU] [--category tee|hoodie|...] [--technique dtg|aop|embroidery] [--quality pro|standard] [--listing-channels tiktok_shop,etsy]
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   hermes:
@@ -60,6 +60,7 @@ Pass through user-provided options:
 npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --category tee --technique dtg
 npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --product <uuid-or-sku>
 npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --quality standard --json
+npm --prefix "$PLUGIN_ROOT" run launch-product -- "<prompt-or-theme>" --listing-channels tiktok_shop,etsy
 ```
 
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
@@ -69,6 +70,13 @@ The `--quality` option only accepts `pro` or `standard` and controls product
 flats. Translate the user's wording before invoking: "premium / high / best /
 hi-res" → `pro`; "draft / fast / cheap / low" → `standard`. Default is `pro`
 when unspecified.
+
+Use `--listing-channels` only when the user knows where this product will be
+listed. It accepts `tiktok_shop`, `etsy`, and `shopify` as a comma-separated
+list. The runner generates product videos only for supported video destinations:
+TikTok Shop and Etsy. Shopify is accepted as a listing target but skipped for
+product-video generation because the public product-video MCP tool does not
+expose a Shopify-specific video channel.
 
 If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install` once.
 
@@ -93,7 +101,9 @@ The runner will:
    filters.
 4. Generate the design and wait for completion.
 5. Generate listing-ready mockups and wait for completion.
-6. Print a short launch summary with product, design, grouped mockup links, and
+6. If listing channels were supplied, generate only the product videos those
+   channels can use.
+7. Print a short launch summary with product, design, grouped mockup links, and
    the Vaybel dashboard URL.
 
 Mockup policy:
@@ -110,6 +120,16 @@ Mockup policy:
 - Stop before design generation if Brand DNA has no compatible audience for
   VTO. The five-image listing minimum cannot be met without an audience-backed
   virtual model.
+
+Product-video policy:
+
+- Product videos are listing media, not social `content.*` videos.
+- Generate product videos only when `--listing-channels` is supplied. Do not
+  default to both channels; that can spend 20 credits per unused video.
+- Map `tiktok_shop` to the square TikTok Shop product video and `etsy` to the
+  Etsy product video. Skip `shopify` for product-video generation.
+- Product videos require completed VTO mockups. Run them after mockups, then
+  wait with `product_video.get`.
 
 ## Rules
 

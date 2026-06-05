@@ -41,7 +41,7 @@ export interface DuplicateCheck {
 
 export interface OptimizeTask {
   handle: string;
-  task_id: string;
+  task_id?: string;
   status: "pending";
   category: "import";
   task_type: "import_optimize_product";

@@ -2,28 +2,34 @@ import { closeMCPClient } from "../../client.js";
 import {
   type BrandDNA,
   type CatalogProduct,
+  type ListingChannel,
   type MockupGender,
   type MockupKind,
   type MockupQuality,
+  type ProductVideoChannel,
   checkCredits,
   generateDesign,
   generateMockup,
+  generateProductVideo,
   getBrandDNA,
   listBlanks,
   waitForDesign,
   waitForMockup,
+  waitForProductVideo,
 } from "../../servers/vaybel/index.js";
 
 const DEFAULT_CATEGORY = "shirt";
 const DEFAULT_LIMIT = 10;
 const DEFAULT_DESIGN_TIMEOUT = 600;
 const DEFAULT_MOCKUP_TIMEOUT = 300;
+const DEFAULT_PRODUCT_VIDEO_TIMEOUT = 600;
 const DESIGN_CREDITS = 10;
 const MOCKUP_CREDIT_UNIT = 2;
 const FLAT_MOCKUP_COUNT = 2;
 const VTO_MOCKUP_COUNT = 3;
 const DETAIL_CLOSEUP_COUNT = 3;
 const LISTING_MINIMUM_MOCKUPS = 5;
+const PRODUCT_VIDEO_CREDIT_UNIT = 20;
 
 interface Options {
   prompt: string;
@@ -32,9 +38,11 @@ interface Options {
   technique?: string;
   search?: string;
   quality: MockupQuality;
+  listingChannels: ListingChannel[];
   limit: number;
   designTimeoutSec: number;
   mockupTimeoutSec: number;
+  productVideoTimeoutSec: number;
   json: boolean;
 }
 
@@ -45,10 +53,19 @@ interface LaunchSummary {
     image_url: string | null;
   };
   mockup_plan: MockupPlanSummary;
+  product_video_plan: ProductVideoPlanSummary;
   mockups: Array<{
     id: string;
     external_key: string;
     image_url: string | null;
+    status: string;
+  }>;
+  product_videos: Array<{
+    id: string;
+    channel: string;
+    video_type: string;
+    video_url: string | null;
+    aspect_ratio: string;
     status: string;
   }>;
   dashboard_url: string;
@@ -67,6 +84,18 @@ interface MockupPlanSummary extends MockupPlan {
   listing_minimum: number;
   completed_count: number;
   listing_ready: boolean;
+}
+
+interface ProductVideoPlan {
+  listing_channels: ListingChannel[];
+  video_channels: ProductVideoChannel[];
+  skipped_channels: ListingChannel[];
+  expected_count: number;
+}
+
+interface ProductVideoPlanSummary extends ProductVideoPlan {
+  completed_count: number;
+  skipped_reason: string | null;
 }
 
 async function main(): Promise<void> {
@@ -89,7 +118,9 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
 
   const [brand, product] = await Promise.all([getBrandDNA(), resolveProduct(options)]);
   const mockupPlan = buildMockupPlan(product, brand);
-  const requiredCredits = DESIGN_CREDITS + estimateMockupCredits(mockupPlan);
+  const productVideoPlan = buildProductVideoPlan(options.listingChannels);
+  const requiredCredits =
+    DESIGN_CREDITS + estimateMockupCredits(mockupPlan) + estimateProductVideoCredits(productVideoPlan);
   const credits = await checkCredits({ required: requiredCredits });
   if (!credits.sufficient) {
     throw new Error(
@@ -102,8 +133,9 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     product_uuid: product.uuid,
     prompt,
   });
+  const designHandle = asyncHandle(designTask, "design.generate_design");
 
-  const design = await waitForDesign(designTask.task_id, options.designTimeoutSec);
+  const design = await waitForDesign(designHandle, options.designTimeoutSec);
   if (design.status !== "complete" || !design.design_id) {
     throw new Error(
       `Design did not complete: status=${design.status}, stage=${design.stage || "unknown"}, error=${design.error || "none"}`,
@@ -137,6 +169,12 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     );
   }
 
+  const productVideos = await generateListingProductVideos(
+    design.design_id,
+    productVideoPlan,
+    options.productVideoTimeoutSec,
+  );
+
   return {
     product,
     design: {
@@ -149,7 +187,16 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
       completed_count: completedCount,
       listing_ready: completedCount >= LISTING_MINIMUM_MOCKUPS,
     },
+    product_video_plan: {
+      ...productVideoPlan,
+      completed_count: productVideos.filter((video) => video.status === "complete" && Boolean(video.video_url))
+        .length,
+      skipped_reason: productVideoPlan.video_channels.length
+        ? null
+        : productVideoSkipReason(productVideoPlan),
+    },
     mockups,
+    product_videos: productVideos,
     dashboard_url: dashboardUrl(design.design_id),
   };
 }
@@ -362,6 +409,103 @@ function listingReadyMockupCount(mockups: LaunchSummary["mockups"]): number {
   return mockups.filter((mockup) => mockup.status === "complete" && Boolean(mockup.image_url)).length;
 }
 
+function buildProductVideoPlan(listingChannels: ListingChannel[]): ProductVideoPlan {
+  const videoChannels = unique(
+    listingChannels
+      .map(productVideoChannelForListingChannel)
+      .filter((channel): channel is ProductVideoChannel => Boolean(channel)),
+  );
+  const skippedChannels = listingChannels.filter(
+    (channel) => !productVideoChannelForListingChannel(channel),
+  );
+
+  return {
+    listing_channels: listingChannels,
+    video_channels: videoChannels,
+    skipped_channels: skippedChannels,
+    expected_count: videoChannels.length,
+  };
+}
+
+function productVideoChannelForListingChannel(channel: ListingChannel): ProductVideoChannel | null {
+  if (channel === "tiktok_shop" || channel === "etsy") {
+    return channel;
+  }
+  return null;
+}
+
+function estimateProductVideoCredits(plan: ProductVideoPlan): number {
+  return plan.expected_count * PRODUCT_VIDEO_CREDIT_UNIT;
+}
+
+async function generateListingProductVideos(
+  designId: string,
+  plan: ProductVideoPlan,
+  timeoutSec: number,
+): Promise<LaunchSummary["product_videos"]> {
+  if (!plan.video_channels.length) {
+    return [];
+  }
+
+  await generateProductVideo({
+    design_id: designId,
+    channels: plan.video_channels,
+  });
+  const status = await waitForProductVideo(designId, timeoutSec);
+  const requested = new Set<string>(plan.video_channels);
+  const videos = status.videos
+    .filter((video) => requested.has(video.channel))
+    .map((video) => ({
+      id: video.id,
+      channel: video.channel,
+      video_type: video.video_type,
+      video_url: video.video_url,
+      aspect_ratio: video.aspect_ratio,
+      status: video.status,
+    }));
+
+  const returned = new Set(videos.map((video) => video.channel));
+  const missing = plan.video_channels.filter((channel) => !returned.has(channel));
+  const incomplete = videos.filter(
+    (video) => video.status !== "complete" || !video.video_url,
+  );
+  if (missing.length || incomplete.length) {
+    const details = [
+      ...missing.map((channel) => `${channel}: missing`),
+      ...incomplete.map((video) => `${video.channel}: ${video.status}`),
+    ]
+      .filter(Boolean)
+      .join(", ");
+    throw new Error(
+      `Product videos did not complete for requested listing channels${details ? ` (${details})` : ""}`,
+    );
+  }
+
+  return videos;
+}
+
+function productVideoSkipReason(plan: ProductVideoPlan): string | null {
+  if (!plan.listing_channels.length) {
+    return "no listing channels requested";
+  }
+  if (plan.skipped_channels.length) {
+    return `no MCP product-video format for ${plan.skipped_channels.join(", ")}`;
+  }
+  return null;
+}
+
+function asyncHandle(result: { handle?: string; task_id?: string }, toolName: string): string {
+  const handle = result.handle || result.task_id;
+  if (!handle) {
+    throw new Error(`${toolName} did not return a polling handle`);
+  }
+  return handle;
+}
+
+function unique<T>(values: T[]): T[] {
+  return [...new Set(values)];
+}
+
 function isAopProduct(product: CatalogProduct): boolean {
   const technique = (product.default_technique || "").toLowerCase();
   const searchable = [
@@ -387,6 +531,7 @@ function renderMarkdown(summary: LaunchSummary): string {
   const productTitle = summary.product.title || summary.product.uuid;
   const mockupSections = renderMockupSections(summary.mockups);
   const plan = summary.mockup_plan;
+  const productVideoSections = renderProductVideoSections(summary);
 
   return [
     "# Vaybel Launch Summary",
@@ -395,9 +540,13 @@ function renderMarkdown(summary: LaunchSummary): string {
     `- Design: ${designLink(summary.design)}`,
     `- Mockup plan: ${mockupPlanLabel(plan)}`,
     `- Listing-ready mockups: ${plan.completed_count}/${plan.listing_minimum}`,
+    `- Product videos: ${productVideoPlanLabel(summary.product_video_plan)}`,
     "",
     "## Mockups",
     mockupSections || "- none",
+    "",
+    "## Product Videos",
+    productVideoSections || "- none",
     "",
     `Continue in dashboard: ${summary.dashboard_url}`,
   ].join("\n");
@@ -412,6 +561,35 @@ function mockupPlanLabel(plan: MockupPlanSummary): string {
     ? `${plan.audience_label} (${plan.audience_key}, ${plan.gender})`
     : `${plan.audience_label} (${plan.audience_key}, server-selected gender)`;
   return `${parts.join(" + ")} via ${audience}`;
+}
+
+function productVideoPlanLabel(plan: ProductVideoPlanSummary): string {
+  if (!plan.video_channels.length) {
+    return `skipped (${plan.skipped_reason || "not requested"})`;
+  }
+  const targets = plan.video_channels.join(", ");
+  const skipped = plan.skipped_channels.length
+    ? `; skipped ${plan.skipped_channels.join(", ")}`
+    : "";
+  return `${plan.completed_count}/${plan.expected_count} for ${targets}${skipped}`;
+}
+
+function renderProductVideoSections(summary: LaunchSummary): string {
+  if (!summary.product_videos.length) {
+    return "";
+  }
+  return summary.product_videos
+    .map((video) => {
+      const label = productVideoLabel(video.channel);
+      return `- ${assetLink(label, video.video_url, video.id)} (${video.aspect_ratio})`;
+    })
+    .join("\n");
+}
+
+function productVideoLabel(channel: string): string {
+  if (channel === "tiktok_shop") return "TikTok Shop product video";
+  if (channel === "etsy") return "Etsy product video";
+  return titleCase(`${channel} product video`);
 }
 
 function designLink(design: LaunchSummary["design"]): string {
@@ -542,9 +720,11 @@ function parseArgs(args: string[]): Options {
   const options: Options = {
     prompt: "",
     quality: "pro",
+    listingChannels: [],
     limit: DEFAULT_LIMIT,
     designTimeoutSec: DEFAULT_DESIGN_TIMEOUT,
     mockupTimeoutSec: DEFAULT_MOCKUP_TIMEOUT,
+    productVideoTimeoutSec: DEFAULT_PRODUCT_VIDEO_TIMEOUT,
     json: false,
   };
 
@@ -570,12 +750,16 @@ function parseArgs(args: string[]): Options {
         throw new Error(`--quality must be 'pro' or 'standard' (got '${quality}')`);
       }
       options.quality = quality;
+    } else if (arg === "--listing-channel" || arg === "--listing-channels") {
+      options.listingChannels = parseListingChannels(readValue(args, ++index, arg));
     } else if (arg === "--limit") {
       options.limit = Number(readValue(args, ++index, arg));
     } else if (arg === "--design-timeout") {
       options.designTimeoutSec = Number(readValue(args, ++index, arg));
     } else if (arg === "--mockup-timeout") {
       options.mockupTimeoutSec = Number(readValue(args, ++index, arg));
+    } else if (arg === "--product-video-timeout") {
+      options.productVideoTimeoutSec = Number(readValue(args, ++index, arg));
     } else if (arg.startsWith("--")) {
       throw new Error(`Unknown option: ${arg}`);
     } else {
@@ -590,8 +774,38 @@ function parseArgs(args: string[]): Options {
   if (!Number.isFinite(options.limit) || options.limit < 1 || options.limit > 100) {
     throw new Error("--limit must be between 1 and 100");
   }
+  if (!Number.isFinite(options.productVideoTimeoutSec) || options.productVideoTimeoutSec < 0) {
+    throw new Error("--product-video-timeout must be a non-negative number");
+  }
 
   return options;
+}
+
+function parseListingChannels(value: string): ListingChannel[] {
+  const aliases: Record<string, ListingChannel> = {
+    tiktok: "tiktok_shop",
+    tiktokshop: "tiktok_shop",
+    "tiktok-shop": "tiktok_shop",
+    tiktok_shop: "tiktok_shop",
+    etsy: "etsy",
+    shopify: "shopify",
+  };
+  const channels: ListingChannel[] = [];
+  for (const part of value.split(",")) {
+    const key = part.trim().toLowerCase().replace(/\s+/g, "_");
+    if (!key) {
+      continue;
+    }
+    const channel = aliases[key];
+    if (!channel) {
+      throw new Error("--listing-channels must contain tiktok_shop, etsy, and/or shopify");
+    }
+    channels.push(channel);
+  }
+  if (!channels.length) {
+    throw new Error("--listing-channels must contain tiktok_shop, etsy, and/or shopify");
+  }
+  return unique(channels);
 }
 
 function readValue(args: string[], index: number, flag: string): string {

@@ -16,7 +16,7 @@ export interface GenerateContentInput {
 export interface GenerateContentResponse {
   handle: string;
   content_id: string;
-  task_id: string;
+  task_id?: string;
   status: "pending";
   listing_id: string;
   format: string;

@@ -10,7 +10,7 @@ export interface CreateListingInput {
 
 export interface ListingTask {
   handle?: string;
-  task_id: string;
+  task_id?: string;
   status?: "pending";
   channel: string;
   category: "listing";

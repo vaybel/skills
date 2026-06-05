@@ -8,7 +8,7 @@ export interface GenerateDesignInput {
 
 export interface GenerateDesignResponse {
   handle: string;
-  task_id: string;
+  task_id?: string;
   status: "pending";
   message?: string;
 }

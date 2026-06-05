@@ -18,6 +18,15 @@ returns product UUIDs that can be fed into launch-product.
 The skill will search for a tee blank, generate a design, create listing-ready
 mockups, and return a concise launch summary.
 
+## Launch With Listing Product Videos
+
+```text
+/vaybel:launch-product "distressed motocross type treatment, washed black tee" --listing-channels tiktok_shop,etsy
+```
+
+Listing product videos are generated only for supplied listing channels. TikTok
+Shop and Etsy are supported; Shopify is skipped for product-video generation.
+
 ## Launch on a Specific Product
 
 ```text

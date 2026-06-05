@@ -246,6 +246,8 @@ function validateWrappers() {
     "design.get",
     "mockup.generate_mockup",
     "mockup.get",
+    "product_video.generate",
+    "product_video.get",
     "trend.list_trends",
     "trend.generate_launch_concept",
     "trend.get",

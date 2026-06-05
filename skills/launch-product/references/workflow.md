@@ -24,6 +24,8 @@ Expected MCP flow:
 5. `design.get` with `wait_sec`
 6. `mockup.generate_mockup` with explicit `kinds`
 7. `mockup.get` with `wait_sec`
+8. Optional `product_video.generate` for requested listing video channels
+9. Optional `product_video.get` with `wait_sec`
 
 The default mockup request is listing-ready:
 
@@ -33,6 +35,11 @@ The default mockup request is listing-ready:
 
 This yields five required listing images for AOP products and eight images for
 DTG/non-AOP products.
+
+Product videos are optional and channel-scoped. Only call
+`product_video.generate` when the user supplied listing channels. Request
+`tiktok_shop` for a square TikTok Shop listing video and `etsy` for an Etsy
+listing video. Do not request product videos for Shopify through MCP.
 
 Do not use private REST endpoints for listings, optimization, trend feed, or
 social publishing. Use the dedicated workflow skills for those tasks.
