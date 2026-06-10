@@ -1,6 +1,6 @@
 ---
 name: vaybel:optimize-product
-version: 0.1.0
+version: 0.2.0
 description: |
   Optimize an existing Printify or Printful product through the public Vaybel
   MCP server. Use when the user wants to import a connected provider product,
@@ -65,7 +65,7 @@ The runner will:
 1. List connected providers or provider products when `--list` is used.
 2. Check whether the provider product is already imported.
 3. Skip duplicate imports unless `--force` is supplied.
-4. Dispatch `optimize.optimize_product` and wait for completion.
+4. Dispatch `optimize.run` and wait for completion.
 5. Return design/listing IDs and the dashboard URL.
 
 ## Rules

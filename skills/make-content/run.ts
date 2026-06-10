@@ -3,13 +3,11 @@ import {
   generateContent,
   generateSocialPosts,
   publishSocialPosts,
-  resolveSalesChannels,
   waitForContent,
   type ContentFormat,
   type ContentStatus,
   type MarketingPost,
   type PublishSocialPostResult,
-  type ResolveSalesChannelsResponse,
   type SocialChannel,
 } from "../../servers/vaybel/index.js";
 import {
@@ -23,7 +21,7 @@ import {
 } from "../shared.js";
 
 const DEFAULT_ARCHETYPE = "graphic_led";
-const DEFAULT_SHORT_TYPE = "lifestyle";
+const DEFAULT_SCENE_TYPE = "lifestyle";
 const DEFAULT_FORMAT: ContentFormat = "video";
 const DEFAULT_TIMEOUT_SEC = 900;
 
@@ -31,7 +29,7 @@ interface Options {
   listingId?: string;
   format: ContentFormat;
   archetype: string;
-  shortType: string;
+  sceneType: string;
   imageUrls: string[];
   targetSalesChannel?: string;
   channels: string[];
@@ -47,7 +45,6 @@ interface ContentSummary {
     format: string;
   };
   status: ContentStatus;
-  sales_channels: ResolveSalesChannelsResponse | null;
   social_posts: MarketingPost[];
   publish_results: PublishSocialPostResult[];
   dashboard_url: string;
@@ -86,19 +83,17 @@ async function makeContent(options: Options): Promise<ContentSummary> {
     throw new Error("--publish requires --channels");
   }
 
-  const salesChannels = await safeResolveSalesChannels(options.listingId);
-
   const input: {
     listing_id: string;
     archetype: string;
-    short_type: string;
+    scene_type: string;
     format: ContentFormat;
     image_urls?: string[];
     target_sales_channel?: string;
   } = {
     listing_id: options.listingId,
     archetype: options.archetype,
-    short_type: options.shortType,
+    scene_type: options.sceneType,
     format: options.format,
   };
   if (options.imageUrls.length) {
@@ -135,19 +130,10 @@ async function makeContent(options: Options): Promise<ContentSummary> {
       format: generation.format,
     },
     status,
-    sales_channels: salesChannels,
     social_posts: socialPosts,
     publish_results: publishResults,
     dashboard_url: dashboardUrl(`/dashboard/promote/${options.listingId}`),
   };
-}
-
-async function safeResolveSalesChannels(listingId: string): Promise<ResolveSalesChannelsResponse | null> {
-  try {
-    return await resolveSalesChannels(listingId);
-  } catch {
-    return null;
-  }
 }
 
 function renderMarkdown(summary: ContentSummary): string {
@@ -170,19 +156,6 @@ function renderMarkdown(summary: ContentSummary): string {
   }
   if (summary.status.status !== "complete") {
     lines.push("- Social drafts were not generated because content is not complete yet.");
-  }
-
-  if (summary.sales_channels) {
-    lines.push("", "## CTA Destinations");
-    for (const [channel, destination] of Object.entries(summary.sales_channels.social_channels)) {
-      if (!destination) {
-        lines.push(`- ${channel}: no live destination`);
-      } else {
-        lines.push(
-          `- ${channel}: ${destination.sales_channel}${destination.public_url ? ` (${destination.public_url})` : ""}`,
-        );
-      }
-    }
   }
 
   if (summary.social_posts.length) {
@@ -210,7 +183,7 @@ function parseArgs(args: string[]): Options {
   const options: Options = {
     format: DEFAULT_FORMAT,
     archetype: DEFAULT_ARCHETYPE,
-    shortType: DEFAULT_SHORT_TYPE,
+    sceneType: DEFAULT_SCENE_TYPE,
     imageUrls: [],
     channels: [],
     publish: false,
@@ -236,8 +209,9 @@ function parseArgs(args: string[]): Options {
       options.format = format;
     } else if (arg === "--archetype") {
       options.archetype = readValue(args, ++index, arg);
-    } else if (arg === "--short-type") {
-      options.shortType = readValue(args, ++index, arg);
+    } else if (arg === "--scene-type" || arg === "--short-type") {
+      // --short-type kept as a deprecated alias for the old flag name.
+      options.sceneType = readValue(args, ++index, arg);
     } else if (arg === "--image-url") {
       options.imageUrls.push(readValue(args, ++index, arg));
     } else if (arg === "--images") {

@@ -1,6 +1,6 @@
 ---
 name: vaybel:launch-product
-version: 0.1.0
+version: 0.2.0
 description: |
   Launch a Vaybel product through the public MCP server. Use when the user wants
   to create a new apparel product, turn a prompt into a design, generate
@@ -129,7 +129,7 @@ Product-video policy:
 - Map `tiktok_shop` to the square TikTok Shop product video and `etsy` to the
   Etsy product video. Skip `shopify` for product-video generation.
 - Product videos require completed VTO mockups. Run them after mockups, then
-  wait with `product_video.get`.
+  wait with `product_video.get_generation`.
 
 ## Rules
 

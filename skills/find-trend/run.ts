@@ -1,11 +1,14 @@
 import { closeMCPClient } from "../../client.js";
 import {
   generateLaunchConcept,
+  getTrend,
   getTrendMatch,
   listSeasonalEvents,
   listTrends,
+  type NamedTrendDetail,
+  type TrendKeywordChild,
+  type TrendLifecycle,
   type TrendMatch,
-  type TrendView,
   waitForLaunchConcept,
 } from "../../servers/vaybel/index.js";
 import {
@@ -20,10 +23,13 @@ import {
 
 const DEFAULT_PAGE_SIZE = 10;
 const DEFAULT_TIMEOUT_SEC = 180;
+const LIFECYCLES: TrendLifecycle[] = ["emerging", "rising", "peak", "declining"];
 
 interface Options {
-  view: TrendView;
+  lifecycle?: TrendLifecycle;
+  trendType?: string;
   productType?: string;
+  trendId?: string;
   matchId?: string;
   page: number;
   pageSize: number;
@@ -43,7 +49,10 @@ interface ConceptProduct {
 }
 
 interface TrendSummary {
-  trend: TrendMatch;
+  // Named trend (the primary unit). Null only on the --match keyword-direct path.
+  trend: NamedTrendDetail | null;
+  // The keyword row the launch concept was generated against.
+  keyword: TrendMatch | null;
   concept_products: ConceptProduct[];
   seasonal_events?: unknown[];
   dashboard_url: string;
@@ -67,49 +76,105 @@ async function main(): Promise<void> {
 async function findTrend(options: Options): Promise<TrendSummary> {
   preflightEnvironment();
 
-  let trend: TrendMatch;
-  const seasonalEvents = options.includeSeasonalEvents ? (await listSeasonalEvents()).events : undefined;
+  const seasonalEvents = options.includeSeasonalEvents
+    ? (await listSeasonalEvents()).events
+    : undefined;
 
+  // Keyword-direct path: the caller already knows which keyword row to
+  // concept against (e.g. from a previous run's drill-down).
   if (options.matchId) {
-    trend = await getTrendMatch(options.matchId);
+    const keyword = await ensureConcept(options.matchId, options);
+    return buildSummary(null, keyword, seasonalEvents);
+  }
+
+  let trend: NamedTrendDetail;
+  if (options.trendId) {
+    trend = await getTrend(options.trendId);
   } else {
     const listInput: {
-      view: TrendView;
+      lifecycle?: string;
+      trend_type?: string;
       page: number;
       page_size: number;
-      product_type?: string;
     } = {
-      view: options.view,
       page: options.page,
       page_size: options.pageSize,
     };
-    if (options.productType) {
-      listInput.product_type = options.productType;
+    if (options.lifecycle) {
+      listInput.lifecycle = options.lifecycle;
+    }
+    if (options.trendType) {
+      listInput.trend_type = options.trendType;
     }
 
     const trends = await listTrends(listInput);
-    const selected = trends.results.find((item) => !item.is_dismissed) || trends.results[0];
+    const selected = trends.results[0];
     if (!selected) {
       throw new Error(
-        `No trends found for view=${options.view}, product_type=${options.productType || "any"}`,
+        `No named trends found (lifecycle=${options.lifecycle || "any"}, type=${options.trendType || "any"}). ` +
+          "Trends are produced by the weekly pipeline - make sure Brand DNA is set up, or re-run later.",
       );
     }
-    trend = await getTrendMatch(selected.id);
+    trend = await getTrend(selected.id);
   }
 
-  if (options.concept && !hasLaunchConcept(trend)) {
-    const generated = await generateLaunchConcept(trend.id);
-    if (generated.dispatched || generated.status === "pending" || generated.status === "running") {
-      trend = await waitForLaunchConcept(trend.id, options.timeoutSec);
-    } else {
-      trend = await getTrendMatch(trend.id);
+  let keyword: TrendMatch | null = null;
+  if (options.concept) {
+    const child = pickKeyword(trend, options.productType);
+    if (child) {
+      keyword = await ensureConcept(child.id, options);
     }
   }
 
+  return buildSummary(trend, keyword, seasonalEvents);
+}
+
+// Concept generation is keyword-scoped: prefer a keyword matching the
+// requested product type, else the strongest one (the server orders the
+// children by search volume).
+function pickKeyword(
+  trend: NamedTrendDetail,
+  productType?: string,
+): TrendKeywordChild | null {
+  const keywords = trend.keywords || [];
+  if (!keywords.length) {
+    return null;
+  }
+  if (productType) {
+    const match = keywords.find((keyword) => keyword.product_type === productType);
+    if (match) {
+      return match;
+    }
+  }
+  return keywords[0] ?? null;
+}
+
+async function ensureConcept(matchId: string, options: Options): Promise<TrendMatch> {
+  let keyword = await getTrendMatch(matchId);
+  if (!options.concept || hasLaunchConcept(keyword)) {
+    return keyword;
+  }
+
+  const generated = await generateLaunchConcept(matchId);
+  if (generated.dispatched || generated.status === "pending" || generated.status === "running") {
+    keyword = await waitForLaunchConcept(matchId, options.timeoutSec);
+  } else {
+    keyword = await getTrendMatch(matchId);
+  }
+  return keyword;
+}
+
+function buildSummary(
+  trend: NamedTrendDetail | null,
+  keyword: TrendMatch | null,
+  seasonalEvents: unknown[] | undefined,
+): TrendSummary {
+  const conceptSource = keyword?.launch_concept ?? trend?.launch_concept;
   const summary: TrendSummary = {
     trend,
-    concept_products: extractConceptProducts(trend.launch_concept),
-    dashboard_url: dashboardUrl(`/dashboard/trends/concept/${trend.id}`),
+    keyword,
+    concept_products: extractConceptProducts(conceptSource),
+    dashboard_url: dashboardUrl("/dashboard/find-trend"),
   };
   if (seasonalEvents) {
     summary.seasonal_events = seasonalEvents;
@@ -190,20 +255,35 @@ function stringField(record: Record<string, unknown>, ...keys: string[]): string
 }
 
 function renderMarkdown(summary: TrendSummary): string {
-  const trend = summary.trend;
-  const lines = [
-    "# Vaybel Trend Summary",
-    "",
-    `- Trend: ${trend.trend_name}`,
-    `- Match: ${trend.id}`,
-    `- Product type: ${stringifyValue(trend.product_type)}`,
-    `- Opportunity: ${stringifyValue(trend.opportunity)}`,
-    `- Demand: ${stringifyValue(trend.demand)}`,
-    `- Competition: ${stringifyValue(trend.competition)}`,
-  ];
+  const lines = ["# Vaybel Trend Summary", ""];
 
-  if (trend.why_it_fits) {
-    lines.push(`- Why it fits: ${truncate(trend.why_it_fits, 260)}`);
+  if (summary.trend) {
+    const trend = summary.trend;
+    lines.push(
+      `- Trend: ${trend.name}`,
+      `- Story: ${truncate(trend.one_line || "", 200)}`,
+      `- Lifecycle: ${trend.lifecycle_stage} (${stringifyValue(trend.trend_type)})`,
+      `- Score: ${stringifyValue(trend.trend_score)} | Search volume: ${stringifyValue(trend.total_search_volume)} | Keywords: ${stringifyValue(trend.cluster_size)}`,
+    );
+    if (trend.why_now) {
+      lines.push(`- Why now: ${truncate(trend.why_now, 260)}`);
+    }
+    if (trend.design_direction) {
+      lines.push(`- Design direction: ${truncate(trend.design_direction, 260)}`);
+    }
+  }
+
+  if (summary.keyword) {
+    const keyword = summary.keyword;
+    lines.push(
+      "",
+      "## Concept Keyword",
+      `- ${keyword.trend_name} (${stringifyValue(keyword.product_type)}) - id ${keyword.id}`,
+      `- Opportunity: ${stringifyValue(keyword.opportunity)} | Demand: ${stringifyValue(keyword.demand)} | Competition: ${stringifyValue(keyword.competition)}`,
+    );
+    if (keyword.why_it_fits) {
+      lines.push(`- Why it fits: ${truncate(keyword.why_it_fits, 260)}`);
+    }
   }
 
   lines.push("", "## Launch Concepts");
@@ -222,7 +302,7 @@ function renderMarkdown(summary: TrendSummary): string {
       }
     }
   } else {
-    lines.push("- No launch products were returned for this trend.");
+    lines.push("- No launch concept yet (pass a keyword with --match, or re-run with --timeout for slow generations).");
   }
 
   if (summary.seasonal_events?.length) {
@@ -240,7 +320,6 @@ function renderMarkdown(summary: TrendSummary): string {
 
 function parseArgs(args: string[]): Options {
   const options: Options = {
-    view: "all",
     page: 1,
     pageSize: DEFAULT_PAGE_SIZE,
     concept: true,
@@ -257,14 +336,22 @@ function parseArgs(args: string[]): Options {
     }
     if (arg === "--json") {
       options.json = true;
-    } else if (arg === "--view") {
-      const view = readValue(args, ++index, arg);
-      if (view !== "all" && view !== "brand" && view !== "seasonal") {
-        throw new Error("--view must be one of all, brand, seasonal");
+    } else if (arg === "--lifecycle") {
+      const lifecycle = readValue(args, ++index, arg);
+      if (!LIFECYCLES.includes(lifecycle as TrendLifecycle)) {
+        throw new Error(`--lifecycle must be one of ${LIFECYCLES.join(", ")}`);
       }
-      options.view = view;
+      options.lifecycle = lifecycle as TrendLifecycle;
+    } else if (arg === "--type") {
+      options.trendType = readValue(args, ++index, arg);
+    } else if (arg === "--view") {
+      throw new Error(
+        "--view is gone: trends are named clusters now. Filter with --lifecycle (emerging|rising|peak|declining) or --type.",
+      );
     } else if (arg === "--product-type") {
       options.productType = readValue(args, ++index, arg);
+    } else if (arg === "--trend" || arg === "--trend-id") {
+      options.trendId = readValue(args, ++index, arg);
     } else if (arg === "--match") {
       options.matchId = readValue(args, ++index, arg);
     } else if (arg === "--page") {

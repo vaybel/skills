@@ -1,6 +1,6 @@
 {
   "name": "@vaybel/skills",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "description": "Vaybel agent skills that execute TypeScript orchestration code against the public Vaybel MCP server.",
   "type": "module",

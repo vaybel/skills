@@ -1,4 +1,4 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
 export type ContentFormat = "video" | "slideshow" | "carousel" | "single";
 export type SocialChannel = "tiktok" | "instagram" | "youtube" | "x";
@@ -7,7 +7,7 @@ export type SalesChannel = "tiktok_shop" | "etsy" | "shopify" | "storefront";
 export interface GenerateContentInput {
   listing_id: string;
   archetype?: string;
-  short_type?: "lifestyle" | "studio" | string;
+  scene_type?: "lifestyle" | "studio" | string;
   format?: ContentFormat;
   image_urls?: string[];
   target_sales_channel?: SalesChannel | string;
@@ -41,37 +41,6 @@ export interface ContentStatus {
   duration_seconds: number | null;
   scenes_count: number;
   error: string;
-}
-
-export interface SalesChannelDestination {
-  is_live: boolean;
-  public_url: string | null;
-  listing_id: string | null;
-}
-
-export interface SocialDestination {
-  sales_channel: string;
-  public_url: string | null;
-  listing_id: string | null;
-  is_live: boolean;
-}
-
-export interface ResolveSalesChannelsResponse {
-  listing_id: string;
-  product_design_uuid: string;
-  sales_channels: Record<string, SalesChannelDestination>;
-  social_channels: Record<string, SocialDestination | null>;
-}
-
-export interface CtaPolicy {
-  social_channel: string;
-  sales_channel: string;
-  cta_phrase: string;
-  allow_caption_link: boolean;
-  name_sales_platform: boolean;
-  link_mechanic: string;
-  note: string;
-  prompt_guardrails: string[];
 }
 
 export interface MarketingPost {
@@ -109,10 +78,7 @@ export function getContentStatus(contentId: string): Promise<ContentStatus> {
 }
 
 export function waitForContent(contentId: string, timeoutSec = 900): Promise<ContentStatus> {
-  return callMCPTool<ContentStatus>("content.get", {
-    handle: contentId,
-    wait_sec: timeoutSec,
-  });
+  return pollToolUntilDone<ContentStatus>("content.get", { handle: contentId }, timeoutSec);
 }
 
 export function listContent(input: {
@@ -125,22 +91,6 @@ export function listContent(input: {
 
 export function deleteContent(contentId: string): Promise<{ ok: boolean }> {
   return callMCPTool<{ ok: boolean }>("content.delete", { content_id: contentId });
-}
-
-export function resolveSalesChannels(listingId: string): Promise<ResolveSalesChannelsResponse> {
-  return callMCPTool<ResolveSalesChannelsResponse>("content.resolve_sales_channels", {
-    listing_id: listingId,
-  });
-}
-
-export function getCtaPolicy(
-  socialChannel: SocialChannel | string,
-  salesChannel?: SalesChannel | string,
-): Promise<CtaPolicy> {
-  return callMCPTool<CtaPolicy>("content.get_cta_policy", {
-    social_channel: socialChannel,
-    sales_channel: salesChannel,
-  });
 }
 
 export function generateSocialPosts(
@@ -181,4 +131,8 @@ export function publishSocialPosts(input: {
     "social_post.publish",
     input,
   );
+}
+
+export function getSocialPost(postId: string): Promise<MarketingPost> {
+  return callMCPTool<MarketingPost>("social_post.get", { post_id: postId });
 }

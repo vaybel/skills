@@ -10,7 +10,7 @@
       "name": "vaybel",
       "source": "./",
       "description": "Code-on-MCP agent workflows for Vaybel trend, launch, optimize, content, and insight workflows.",
-      "version": "0.1.0",
+      "version": "0.2.0",
       "author": {
         "name": "Vaybel"
       },

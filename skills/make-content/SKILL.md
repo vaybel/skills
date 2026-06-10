@@ -1,13 +1,13 @@
 ---
 name: vaybel:make-content
-version: 0.1.0
+version: 0.2.0
 description: |
   Make Vaybel social content through the public MCP server. Use when the user
   wants to generate a video, slideshow, carousel, or single-photo post from an
   existing listing, create social post drafts, or explicitly publish generated
   social posts. NOT for trend discovery, provider-product import, design
   generation, mockup generation, or listing creation.
-argument-hint: <listing-id> [--format video|slideshow|carousel|single] [--channels tiktok,instagram,youtube,x] [--publish]
+argument-hint: <listing-id> [--format video|slideshow|carousel|single] [--scene-type lifestyle|studio] [--channels tiktok,instagram,youtube,x] [--publish]
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   hermes:

@@ -1,12 +1,12 @@
 ---
 name: vaybel:find-trend
-version: 0.1.0
+version: 0.2.0
 description: |
   Find a Vaybel product trend through the public MCP server. Use when the user
   wants trend discovery, ranked opportunities, seasonal or brand-fit trend
   review, or a launch concept for a trend. NOT for generating designs, mockups,
   listings, content, social publishing, or importing provider products.
-argument-hint: [product-type] [--view all|brand|seasonal] [--match UUID] [--no-concept] [--limit N]
+argument-hint: [product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   hermes:
@@ -21,9 +21,10 @@ required_environment_variables:
 # Vaybel Find Trend
 
 Run this skill when the user wants to identify a product opportunity from
-Vaybel's trend feed. The runner selects the best visible trend, fetches its
-details, and generates a launch concept unless the user asks for trend review
-only.
+Vaybel's trend feed. Trends are NAMED clusters with a story ("Coastal Grandma
+Revival"), a lifecycle stage, and keyword children. The runner picks the
+strongest named trend, drills into its best keyword, and generates a launch
+concept unless the user asks for trend review only.
 
 ## Execution
 
@@ -36,9 +37,10 @@ npm --prefix "$PLUGIN_ROOT" run find-trend --
 Pass through user-provided options:
 
 ```bash
-npm --prefix "$PLUGIN_ROOT" run find-trend -- tshirt --view brand
-npm --prefix "$PLUGIN_ROOT" run find-trend -- --match <trend-match-uuid>
-npm --prefix "$PLUGIN_ROOT" run find-trend -- hoodie --view seasonal --seasonal-events --json
+npm --prefix "$PLUGIN_ROOT" run find-trend -- tshirt --lifecycle rising
+npm --prefix "$PLUGIN_ROOT" run find-trend -- --trend <named-trend-uuid>
+npm --prefix "$PLUGIN_ROOT" run find-trend -- --match <keyword-uuid>
+npm --prefix "$PLUGIN_ROOT" run find-trend -- hoodie --seasonal-events --json
 npm --prefix "$PLUGIN_ROOT" run find-trend -- --no-concept
 ```
 
@@ -49,7 +51,7 @@ once.
 On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
 `${HERMES_SKILL_DIR}/../..`. If the root is read-only (baked into an image), skip
 `npm run` (it rebuilds) and call the prebuilt runner directly:
-`node "${HERMES_SKILL_DIR}/../../dist/skills/find-trend/run.js" [product-type] --view brand --json`.
+`node "${HERMES_SKILL_DIR}/../../dist/skills/find-trend/run.js" [product-type] --lifecycle rising --json`.
 
 ## Required Environment
 
@@ -63,11 +65,14 @@ Do not ask the user to paste a PAT in chat.
 
 The runner will:
 
-1. List ranked trend matches for the requested view/product type, or load the
-   explicit `--match`.
-2. Pick the highest non-dismissed trend when no match is supplied.
-3. Generate and wait for a launch concept by default.
-4. Return trend scores, the fit rationale, product UUIDs, concept prompts, and
+1. List named trends (strongest first), optionally filtered by `--lifecycle`
+   or `--type`; or load an explicit `--trend` (named) / `--match` (keyword).
+2. Pick the top named trend and read its detail: story, why-now, design
+   direction, momentum, and keyword children.
+3. Pick the best keyword (matching the product type when given) and generate /
+   wait for its launch concept by default. Concept generation costs 2 credits
+   on first dispatch; cached concepts are free.
+4. Return the trend story, keyword scores, product UUIDs, concept prompts, and
    a dashboard link.
 
 ## Rules

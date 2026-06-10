@@ -3,7 +3,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 const DEFAULT_MCP_URL = "https://mcp.vaybel.com/";
 const CLIENT_NAME = "vaybel-skills";
-const CLIENT_VERSION = "0.1.0";
+const CLIENT_VERSION = "0.2.0";
 
 let clientPromise: Promise<Client> | null = null;
 
@@ -16,16 +16,53 @@ export class VaybelMCPError extends Error {
   }
 }
 
+// The server caps a single long-poll at 50s (its ALB idle timeout is 60s and
+// the hold writes nothing until it returns), so longer waits must re-poll.
+// All waitFor* helpers loop in <=45s chunks until the task is done or the
+// local deadline passes.
+const SERVER_WAIT_CHUNK_SEC = 45;
+const TERMINAL_POLL_STATUSES = new Set([
+  "complete",
+  "failed",
+  "failure",
+  "error",
+  "cancelled",
+  "canceled",
+  "revoked",
+]);
+
+export interface PollablePayload {
+  status?: string;
+  done?: boolean;
+}
+
+export async function pollToolUntilDone<T extends PollablePayload>(
+  name: string,
+  args: Record<string, unknown>,
+  timeoutSec: number,
+): Promise<T> {
+  const deadline = Date.now() + Math.max(1, timeoutSec) * 1000;
+  for (;;) {
+    const remainingSec = Math.ceil((deadline - Date.now()) / 1000);
+    const waitSec = Math.max(1, Math.min(SERVER_WAIT_CHUNK_SEC, remainingSec));
+    const payload = await callMCPTool<T>(name, { ...args, wait_sec: waitSec });
+    const terminal =
+      payload.done === true ||
+      (typeof payload.status === "string" && TERMINAL_POLL_STATUSES.has(payload.status));
+    if (terminal || Date.now() >= deadline) {
+      return payload;
+    }
+  }
+}
+
 export async function callMCPTool<T>(name: string, input: ToolInput = {}): Promise<T> {
   const client = await getClient();
   const args = compactInput(input);
 
-  // Long-poll calls (design.get, mockup.get, listing.get, product_video.get, …)
-  // pass `wait_sec`: the server holds the request open up to that many seconds
-  // while the task runs. The MCP SDK's default request timeout is 60s, so any
-  // wait_sec > 60 poll is aborted client-side with `-32001` long before the
-  // task finishes (design generation legitimately takes a few minutes). Scale
-  // the client request timeout to comfortably exceed the server's hold.
+  // Long-poll calls (<domain>.get_generation, content.get) pass `wait_sec`:
+  // the server holds the request open up to that many seconds while the task
+  // runs. Scale the MCP SDK request timeout (default 60s) to comfortably
+  // exceed the server's hold so the client doesn't abort with `-32001`.
   const waitSec = typeof args.wait_sec === "number" ? args.wait_sec : 0;
   const options = waitSec > 0 ? { timeout: (waitSec + 30) * 1000 } : undefined;
 

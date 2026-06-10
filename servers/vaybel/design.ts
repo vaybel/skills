@@ -1,4 +1,4 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
 export interface GenerateDesignInput {
   product_uuid: string;
@@ -27,16 +27,13 @@ export interface DesignStatus {
 }
 
 export function generateDesign(input: GenerateDesignInput): Promise<GenerateDesignResponse> {
-  return callMCPTool<GenerateDesignResponse>("design.generate_design", input);
+  return callMCPTool<GenerateDesignResponse>("design.generate", input);
 }
 
 export function getDesignStatus(taskId: string): Promise<DesignStatus> {
-  return callMCPTool<DesignStatus>("design.get", { handle: taskId });
+  return callMCPTool<DesignStatus>("design.get_generation", { handle: taskId });
 }
 
 export function waitForDesign(taskId: string, timeoutSec = 300): Promise<DesignStatus> {
-  return callMCPTool<DesignStatus>("design.get", {
-    handle: taskId,
-    wait_sec: timeoutSec,
-  });
+  return pollToolUntilDone<DesignStatus>("design.get_generation", { handle: taskId }, timeoutSec);
 }

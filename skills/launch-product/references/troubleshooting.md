@@ -34,7 +34,7 @@ The launch-product runner requests VTO to meet the five-mockup listing minimum.
 If Brand DNA has no compatible audience, stop before design generation and ask
 the user to add an audience in Vaybel Brand Kit.
 
-If `mockup.generate_mockup` reports that no virtual model exists for the chosen
+If `mockup.generate` reports that no virtual model exists for the chosen
 audience, tell the user the audience needs a created virtual model before VTO can
 run. Do not fake the listing-ready minimum with only flats or detail close-ups.
 

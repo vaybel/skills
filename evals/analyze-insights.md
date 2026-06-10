@@ -13,7 +13,7 @@
   - `insight.get_overview`
   - `insight.get_guidance`
   - `insight.list_design_performance`
-  - `credits.check_credits`
+  - `credits.check`
 - Summarizes KPIs, deltas, channels, narrative insights, top design snapshots,
   credit state, and next-best-action guidance.
 - Includes the dashboard insights URL.

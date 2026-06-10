@@ -1,4 +1,4 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
 export type ListingChannel = "tiktok_shop" | "etsy" | "shopify";
 
@@ -37,11 +37,11 @@ export interface ListingIndexResponse {
 }
 
 export function createListing(input: CreateListingInput): Promise<ListingTask> {
-  return callMCPTool<ListingTask>("listing.create_listing", input);
+  return callMCPTool<ListingTask>("listing.create", input);
 }
 
 export function getListing(listingId: string): Promise<Record<string, unknown>> {
-  return callMCPTool<Record<string, unknown>>("listing.get_listing", {
+  return callMCPTool<Record<string, unknown>>("listing.get", {
     listing_id: listingId,
   });
 }
@@ -53,7 +53,7 @@ export function listListings(input: {
   page?: number;
   page_size?: number;
 } = {}): Promise<ListingIndexResponse> {
-  return callMCPTool<ListingIndexResponse>("listing.list_listings", input);
+  return callMCPTool<ListingIndexResponse>("listing.list", input);
 }
 
 export function updateListing(input: {
@@ -61,8 +61,22 @@ export function updateListing(input: {
   title?: string;
   description?: string;
   tags?: string[];
+  // TikTok Shop only - assign a warehouse before listing.publish.
+  warehouse_id?: string;
 }): Promise<{ ok: boolean; updated_fields: string[] }> {
-  return callMCPTool<{ ok: boolean; updated_fields: string[] }>("listing.update_listing", input);
+  return callMCPTool<{ ok: boolean; updated_fields: string[] }>("listing.update", input);
+}
+
+export interface TikTokWarehouse {
+  warehouse_id: string;
+  name: string;
+  region: string;
+  status: string;
+  is_default: boolean;
+}
+
+export function listWarehouses(refresh = false): Promise<{ warehouses: TikTokWarehouse[] }> {
+  return callMCPTool<{ warehouses: TikTokWarehouse[] }>("listing.list_warehouses", { refresh });
 }
 
 export function regenerateListingField(
@@ -70,28 +84,29 @@ export function regenerateListingField(
   field: "title" | "description" | "tags",
 ): Promise<{ field: string; value: string | string[] }> {
   return callMCPTool<{ field: string; value: string | string[] }>(
-    "listing.regenerate_listing_field",
+    "listing.regenerate_field",
     { listing_id: listingId, field },
   );
 }
 
 export function publishListing(listingId: string): Promise<ListingTask> {
-  return callMCPTool<ListingTask>("listing.publish_listing", { listing_id: listingId });
+  return callMCPTool<ListingTask>("listing.publish", { listing_id: listingId });
 }
 
 export function deleteListing(listingId: string): Promise<{ ok: boolean; channel: string }> {
-  return callMCPTool<{ ok: boolean; channel: string }>("listing.delete_listing", {
+  return callMCPTool<{ ok: boolean; channel: string }>("listing.delete", {
     listing_id: listingId,
   });
 }
 
 export function getListingTaskStatus(taskId: string): Promise<ListingTaskStatus> {
-  return callMCPTool<ListingTaskStatus>("listing.get", { handle: taskId });
+  return callMCPTool<ListingTaskStatus>("listing.get_generation", { handle: taskId });
 }
 
 export function waitForListingTask(taskId: string, timeoutSec = 180): Promise<ListingTaskStatus> {
-  return callMCPTool<ListingTaskStatus>("listing.get", {
-    handle: taskId,
-    wait_sec: timeoutSec,
-  });
+  return pollToolUntilDone<ListingTaskStatus>(
+    "listing.get_generation",
+    { handle: taskId },
+    timeoutSec,
+  );
 }

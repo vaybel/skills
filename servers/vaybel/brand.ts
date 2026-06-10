@@ -7,10 +7,16 @@ export interface BrandAudience {
   label: string;
   gender_options: AudienceGender[];
   ethnicity_options?: string[];
-  age_range?: {
-    min: number | null;
-    max: number | null;
-  };
+  // "min-max" string - the exact shape brand_dna.set accepts back.
+  age_range?: string;
+  description?: string;
+  is_preset?: boolean;
+  created_at?: string;
+}
+
+export interface BrandNiche {
+  name: string;
+  is_preset: boolean;
 }
 
 export interface BrandDNA {
@@ -24,8 +30,11 @@ export interface BrandDNA {
   logo_url: string | null;
   logo_description: string | null;
   audiences?: BrandAudience[];
+  // Pass these back through brand_dna.set to keep them - omitting niches
+  // there replaces them with [].
+  niches?: BrandNiche[];
 }
 
 export function getBrandDNA(): Promise<BrandDNA> {
-  return callMCPTool<BrandDNA>("brand_dna.get_brand_dna");
+  return callMCPTool<BrandDNA>("brand_dna.get");
 }

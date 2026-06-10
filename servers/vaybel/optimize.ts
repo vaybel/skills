@@ -1,4 +1,4 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
 export type ProviderKey = "printify" | "printful";
 
@@ -90,7 +90,7 @@ export function optimizeProduct(input: {
   product_id: string;
   shop_id?: string;
 }): Promise<OptimizeTask> {
-  return callMCPTool<OptimizeTask>("optimize.optimize_product", input);
+  return callMCPTool<OptimizeTask>("optimize.run", input);
 }
 
 export function refreshListing(designId: string): Promise<RefreshListingResponse> {
@@ -98,12 +98,13 @@ export function refreshListing(designId: string): Promise<RefreshListingResponse
 }
 
 export function getOptimizeTaskStatus(taskId: string): Promise<OptimizeTaskStatus> {
-  return callMCPTool<OptimizeTaskStatus>("optimize.get", { handle: taskId });
+  return callMCPTool<OptimizeTaskStatus>("optimize.get_generation", { handle: taskId });
 }
 
 export function waitForOptimizeTask(taskId: string, timeoutSec = 300): Promise<OptimizeTaskStatus> {
-  return callMCPTool<OptimizeTaskStatus>("optimize.get", {
-    handle: taskId,
-    wait_sec: timeoutSec,
-  });
+  return pollToolUntilDone<OptimizeTaskStatus>(
+    "optimize.get_generation",
+    { handle: taskId },
+    timeoutSec,
+  );
 }

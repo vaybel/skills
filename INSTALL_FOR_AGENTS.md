@@ -21,7 +21,7 @@ Then invoke:
 
 ```text
 /vaybel:launch-product "<idea>"
-/vaybel:find-trend tshirt --view brand
+/vaybel:find-trend tshirt --lifecycle rising
 /vaybel:optimize-product --provider printify --product-id <external-id>
 /vaybel:make-content <listing-id> --channels tiktok,instagram
 /vaybel:analyze-insights --range 28d
@@ -61,7 +61,7 @@ npm run typecheck
 
 ```text
 /vaybel:launch-product "<idea>"
-/vaybel:find-trend tshirt --view brand
+/vaybel:find-trend tshirt --lifecycle rising
 /vaybel:optimize-product --provider printify --product-id <external-id>
 /vaybel:make-content <listing-id> --channels tiktok,instagram
 /vaybel:analyze-insights --range 28d

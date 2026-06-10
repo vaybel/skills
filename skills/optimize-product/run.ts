@@ -162,7 +162,7 @@ async function runOptimize(options: Options): Promise<Summary> {
   const task = await optimizeProduct(input);
   const taskHandle = task.handle || task.task_id;
   if (!taskHandle) {
-    throw new Error("optimize.optimize_product did not return a polling handle");
+    throw new Error("optimize.run did not return a polling handle");
   }
   const status = await waitForOptimizeTask(taskHandle, options.timeoutSec);
   if (status.status === "failed" || status.status === "cancelled") {

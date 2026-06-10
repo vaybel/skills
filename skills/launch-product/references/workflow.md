@@ -17,15 +17,15 @@ user can continue into videos, content, or listings manually.
 
 Expected MCP flow:
 
-1. `credits.check_credits`
-2. `brand_dna.get_brand_dna`
+1. `credits.check`
+2. `brand_dna.get`
 3. `catalog.list_blanks`
-4. `design.generate_design`
-5. `design.get` with `wait_sec`
-6. `mockup.generate_mockup` with explicit `kinds`
-7. `mockup.get` with `wait_sec`
+4. `design.generate`
+5. Poll `design.get_generation` with `wait_sec` (single poll caps at 50s; re-poll until done)
+6. `mockup.generate` with explicit `kinds`
+7. Poll `mockup.get_generation` with the returned `handle` (when `handle` is null, every mockup already existed — read them via `mockup.list`)
 8. Optional `product_video.generate` for requested listing video channels
-9. Optional `product_video.get` with `wait_sec`
+9. Optional `product_video.get_generation` with `wait_sec`
 
 The default mockup request is listing-ready:
 

@@ -1,6 +1,6 @@
 ---
 name: vaybel:analyze-insights
-version: 0.1.0
+version: 0.2.0
 description: |
   Get Vaybel shop insights through the public MCP server. Use when the user
   wants performance KPIs, channel breakdowns, top design snapshots, credit
@@ -69,7 +69,7 @@ The runner will:
 2. Read `insight.get_guidance` for next action, stage, revenue, and streak
    state.
 3. Read `insight.list_design_performance` for top snapshot performers.
-4. Read `credits.check_credits` for the current billing/credit state.
+4. Read `credits.check` for the current billing/credit state (and `credits.list_usage` when the user asks where credits went).
 5. Return an operator summary with caveats and a dashboard link.
 
 ## Rules

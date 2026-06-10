@@ -50,7 +50,7 @@ settings, and reference it from the Vaybel MCP server config. Then run:
 ```text
 /vaybel:launch-product "washed trail running poster art on a heavyweight tee"
 /vaybel:launch-product "washed trail running poster art on a heavyweight tee" --listing-channels tiktok_shop,etsy
-/vaybel:find-trend tshirt --view brand
+/vaybel:find-trend tshirt --lifecycle rising
 /vaybel:optimize-product --provider printify --product-id <external-id>
 /vaybel:make-content <listing-id> --channels tiktok,instagram
 /vaybel:analyze-insights --range 28d

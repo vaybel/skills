@@ -14,6 +14,7 @@ import {
   getBrandDNA,
   listBlanks,
   waitForDesign,
+  listMockups,
   waitForMockup,
   waitForProductVideo,
 } from "../../servers/vaybel/index.js";
@@ -24,7 +25,7 @@ const DEFAULT_DESIGN_TIMEOUT = 600;
 const DEFAULT_MOCKUP_TIMEOUT = 300;
 const DEFAULT_PRODUCT_VIDEO_TIMEOUT = 600;
 // Design generation can transiently fail server-side ("Pipeline returned None").
-// Retry the generate+poll a bounded number of times before giving up — a
+// Retry the generate+poll a bounded number of times before giving up - a
 // controlled, in-runner retry of a known-flaky step (not blind agent retrying).
 const DESIGN_ATTEMPTS = 3; // initial attempt + 2 retries
 const DESIGN_RETRY_BACKOFF_MS = 5000;
@@ -142,7 +143,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
       product_uuid: product.uuid,
       prompt,
     });
-    const designHandle = asyncHandle(designTask, "design.generate_design");
+    const designHandle = asyncHandle(designTask, "design.generate");
     const candidate = await waitForDesign(designHandle, options.designTimeoutSec);
     if (candidate.status === "complete" && candidate.design_id) {
       design = candidate;
@@ -170,13 +171,21 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
     quality: options.quality,
   });
 
-  const mockupStatus = await waitForMockup(mockupHandles(mockupTask), options.mockupTimeoutSec);
+  // handle is null when every requested mockup already existed - nothing to
+  // poll; read the finished rows with mockup.list instead.
+  const mockupRows = mockupTask.handle
+    ? await (async () => {
+        const status = await waitForMockup(mockupTask.handle as string, options.mockupTimeoutSec);
+        if (status.status !== "complete") {
+          throw new Error(`Mockups did not complete: status=${status.status}`);
+        }
+        return status.mockups;
+      })()
+    : (await listMockups(design.design_id)).results.filter((mockup) =>
+        mockupTask.mockup_ids.includes(mockup.id),
+      );
 
-  if (mockupStatus.status !== "complete") {
-    throw new Error(`Mockups did not complete: status=${mockupStatus.status}`);
-  }
-
-  const mockups = mockupStatus.mockups.map((mockup) => ({
+  const mockups = mockupRows.map((mockup) => ({
     id: mockup.id,
     external_key: mockup.external_key,
     image_url: mockup.image_url,
@@ -524,23 +533,6 @@ function asyncHandle(result: { handle?: string; task_id?: string }, toolName: st
 
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-// mockup.generate_mockup returns its poll handles under `handles` now (was
-// `mockup_ids`); tolerate either, plus the singular handle/task_id, so a
-// server-side field rename can't strand the poll with no handle (which surfaces
-// as `mockup.get failed: handle Missing required argument`).
-function mockupHandles(result: {
-  handles?: string[];
-  mockup_ids?: string[];
-  handle?: string | null;
-  task_id?: string;
-}): string[] {
-  if (result.handles && result.handles.length) return result.handles;
-  if (result.mockup_ids && result.mockup_ids.length) return result.mockup_ids;
-  if (result.handle) return [result.handle];
-  if (result.task_id) return [result.task_id];
-  throw new Error("mockup.generate_mockup did not return any mockup handles");
 }
 
 function unique<T>(values: T[]): T[] {

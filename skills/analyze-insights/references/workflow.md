@@ -16,7 +16,7 @@ Tool sequence:
      streak.
 3. `insight.list_design_performance`
    - Returns top snapshot design rows sorted by `gmv`, `orders`, or `views`.
-4. `credits.check_credits`
+4. `credits.check`
    - Returns current credit/billing state for deciding whether a suggested next
      action is affordable.
 

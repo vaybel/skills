@@ -1,4 +1,4 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
 export type ProductVideoChannel = "tiktok_shop" | "etsy";
 
@@ -8,6 +8,8 @@ export interface GenerateProductVideoInput {
 }
 
 export interface GenerateProductVideoResponse {
+  // Equals the design uuid - product videos are design-scoped.
+  handle: string;
   video_ids: string[];
   channels: ProductVideoChannel[];
   status: "pending" | "complete";
@@ -38,15 +40,16 @@ export function generateProductVideo(
 }
 
 export function getProductVideoStatus(designId: string): Promise<ProductVideoStatus> {
-  return callMCPTool<ProductVideoStatus>("product_video.get", { design_id: designId });
+  return callMCPTool<ProductVideoStatus>("product_video.get_generation", { handle: designId });
 }
 
 export function waitForProductVideo(
   designId: string,
   timeoutSec = 600,
 ): Promise<ProductVideoStatus> {
-  return callMCPTool<ProductVideoStatus>("product_video.get", {
-    design_id: designId,
-    wait_sec: timeoutSec,
-  });
+  return pollToolUntilDone<ProductVideoStatus>(
+    "product_video.get_generation",
+    { handle: designId },
+    timeoutSec,
+  );
 }

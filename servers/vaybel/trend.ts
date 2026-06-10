@@ -1,6 +1,74 @@
-import { callMCPTool } from "../../client.js";
+import { callMCPTool, pollToolUntilDone } from "../../client.js";
 
-export type TrendView = "all" | "brand" | "seasonal";
+export type TrendLifecycle = "emerging" | "rising" | "peak" | "declining";
+export type KeywordView = "all" | "brand" | "seasonal";
+
+// Named trends (trend.list / trend.get) - the primary feed
+
+export interface NamedTrend {
+  id: string;
+  name: string;
+  one_line: string;
+  lifecycle_stage: TrendLifecycle | string;
+  trend_type: string;
+  trend_score: number;
+  total_search_volume: number;
+  peak_search_volume: number;
+  cluster_size: number;
+  breakout_count: number;
+  suggested_product_types: string[];
+  seed_group: string;
+  first_seen_at?: string;
+  [key: string]: unknown;
+}
+
+export interface TrendKeywordChild {
+  id: string;
+  keyword: string;
+  product_type: string;
+  search_volume: number | null;
+  competition: number | null;
+  opportunity: number | null;
+}
+
+export interface NamedTrendDetail extends NamedTrend {
+  why_now: string;
+  design_direction: string;
+  mean_velocity?: number | null;
+  max_velocity?: number | null;
+  mean_competition?: number | null;
+  interest_history?: number[];
+  // Concept generation is keyword-scoped: pick a keyword id from here and
+  // pass it to generateLaunchConcept().
+  keywords: TrendKeywordChild[];
+  has_concept: boolean;
+  launch_concept: unknown;
+}
+
+export interface ListNamedTrendsInput {
+  lifecycle?: TrendLifecycle | string;
+  trend_type?: string;
+  page?: number;
+  page_size?: number;
+}
+
+export interface ListNamedTrendsResponse {
+  results: NamedTrend[];
+  total: number;
+  page: number;
+  page_size: number;
+  view_counts: Record<string, number>;
+}
+
+export function listTrends(input: ListNamedTrendsInput = {}): Promise<ListNamedTrendsResponse> {
+  return callMCPTool<ListNamedTrendsResponse>("trend.list", input);
+}
+
+export function getTrend(trendId: string): Promise<NamedTrendDetail> {
+  return callMCPTool<NamedTrendDetail>("trend.get", { trend_id: trendId });
+}
+
+// Keyword rows (trend.list_keywords / trend.get_keyword)
 
 export interface TrendMatch {
   id: string;
@@ -20,14 +88,14 @@ export interface TrendMatch {
   [key: string]: unknown;
 }
 
-export interface ListTrendsInput {
-  view?: TrendView;
+export interface ListKeywordsInput {
+  view?: KeywordView;
   product_type?: string;
   page?: number;
   page_size?: number;
 }
 
-export interface ListTrendsResponse {
+export interface ListKeywordsResponse {
   results: TrendMatch[];
   total: number;
   page: number;
@@ -40,6 +108,16 @@ export interface ListTrendsResponse {
   };
 }
 
+export function listKeywords(input: ListKeywordsInput = {}): Promise<ListKeywordsResponse> {
+  return callMCPTool<ListKeywordsResponse>("trend.list_keywords", input);
+}
+
+export function getTrendMatch(matchId: string): Promise<TrendMatch> {
+  return callMCPTool<TrendMatch>("trend.get_keyword", { match_id: matchId });
+}
+
+// Launch concepts (keyword-scoped)
+
 export interface GenerateLaunchConceptResponse {
   handle?: string;
   resource_id?: string | null;
@@ -50,6 +128,22 @@ export interface GenerateLaunchConceptResponse {
   dispatched: boolean;
   message?: string;
 }
+
+export function generateLaunchConcept(matchId: string): Promise<GenerateLaunchConceptResponse> {
+  return callMCPTool<GenerateLaunchConceptResponse>("trend.generate_concept", {
+    match_id: matchId,
+  });
+}
+
+export function waitForLaunchConcept(matchId: string, timeoutSec = 180): Promise<TrendMatch> {
+  return pollToolUntilDone<TrendMatch & { status?: string; done?: boolean }>(
+    "trend.get_generation",
+    { handle: matchId },
+    timeoutSec,
+  );
+}
+
+// Feedback + seasonal calendar
 
 export interface SubmitTrendFeedbackInput {
   match_id: string;
@@ -64,6 +158,10 @@ export interface SubmitTrendFeedbackInput {
   revenue_30d?: number;
   units_sold_30d?: number;
   conversion_rate?: number;
+}
+
+export function submitTrendFeedback(input: SubmitTrendFeedbackInput): Promise<{ status: string }> {
+  return callMCPTool<{ status: string }>("trend.submit_feedback", input);
 }
 
 export interface SeasonalEvent {
@@ -83,31 +181,6 @@ export interface SeasonalEvent {
   historical_volume_multiplier?: number;
   counter_themes?: string[];
   [key: string]: unknown;
-}
-
-export function listTrends(input: ListTrendsInput = {}): Promise<ListTrendsResponse> {
-  return callMCPTool<ListTrendsResponse>("trend.list_trends", input);
-}
-
-export function getTrendMatch(matchId: string): Promise<TrendMatch> {
-  return callMCPTool<TrendMatch>("trend.get_trend_match", { match_id: matchId });
-}
-
-export function generateLaunchConcept(matchId: string): Promise<GenerateLaunchConceptResponse> {
-  return callMCPTool<GenerateLaunchConceptResponse>("trend.generate_launch_concept", {
-    match_id: matchId,
-  });
-}
-
-export function waitForLaunchConcept(matchId: string, timeoutSec = 180): Promise<TrendMatch> {
-  return callMCPTool<TrendMatch>("trend.get", {
-    handle: matchId,
-    wait_sec: timeoutSec,
-  });
-}
-
-export function submitTrendFeedback(input: SubmitTrendFeedbackInput): Promise<{ status: string }> {
-  return callMCPTool<{ status: string }>("trend.submit_trend_feedback", input);
 }
 
 export function listSeasonalEvents(): Promise<{ events: SeasonalEvent[] }> {

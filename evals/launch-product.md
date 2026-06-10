@@ -13,11 +13,11 @@ Expected:
 - checks credits
 - reads brand DNA
 - selects a tee blank
-- calls `design.generate_design`
-- waits with `design.get`
-- calls `mockup.generate_mockup` with `kinds` including `flat` and `vto`
+- calls `design.generate`
+- polls `design.get_generation` until done
+- calls `mockup.generate` with `kinds` including `flat` and `vto`
 - includes a Brand DNA `audience_key` for VTO
-- waits with `mockup.get`
+- polls `mockup.get_generation` until done
 - does not call `product_video.generate` unless listing channels were supplied
 - returns product, design URL or ID, at least five mockup URLs, and dashboard URL
 
@@ -61,7 +61,7 @@ Expected:
 
 - mockups complete before product-video generation starts
 - calls `product_video.generate` with channels `tiktok_shop` and `etsy`
-- waits with `product_video.get` using `design_id`
+- waits with `product_video.get_generation` using the design handle
 - returns TikTok Shop and Etsy product video URLs when complete
 
 ## Shopify Listing Channel Path

@@ -3,7 +3,7 @@
 ## Find a Trend Opportunity
 
 ```text
-/vaybel:find-trend tshirt --view brand
+/vaybel:find-trend tshirt --lifecycle rising
 ```
 
 The skill ranks trend matches, generates a launch concept when needed, and
