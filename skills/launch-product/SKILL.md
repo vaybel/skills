@@ -88,7 +88,9 @@ If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install` once.
   skill is installed without a shared `VAYBEL_PAT` environment.
 - Optional: `VAYBEL_MCP_URL` or plugin option `mcp_url` for local/dev MCP.
 
-Do not ask the user to paste a PAT in chat. Ask them to set the environment
+Do not ask the user to paste a PAT in chat.
+
+The org needs the **Starter plan or higher** — gated calls fail with a `plan_required:` error; surface the upgrade path instead of retrying. Ask them to set the environment
 variable or plugin option in their agent environment.
 
 ## Behavior

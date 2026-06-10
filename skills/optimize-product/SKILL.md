@@ -58,6 +58,8 @@ On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
 
 Do not ask the user to paste a PAT in chat.
 
+The org needs the **Growth plan** — gated calls fail with a `plan_required:` error; surface the upgrade path instead of retrying.
+
 ## Behavior
 
 The runner will:
