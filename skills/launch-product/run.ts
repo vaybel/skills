@@ -861,7 +861,7 @@ function preflightEnvironment(): void {
 
 function dashboardUrl(designId: string): string {
   const base = process.env.VAYBEL_APP_URL || process.env.CLAUDE_PLUGIN_OPTION_app_url || "https://vaybel.com";
-  return `${base.replace(/\/$/, "")}/dashboard/launch/${designId}`;
+  return `${base.replace(/\/$/, "")}/dashboard/launch-product/${designId}`;
 }
 
 function looksLikeUuid(value: string): boolean {
