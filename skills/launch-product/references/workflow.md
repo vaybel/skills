@@ -21,6 +21,12 @@ Expected MCP flow:
 2. `brand_dna.get`
 3. `catalog.list_blanks`
 4. `design.generate`
+   - When the design idea comes from a trend or a launch concept
+     (`trend.list_trends` / `trend.generate_launch_concept`), ALWAYS pass that
+     trend's id as `trend_match_uuid`. It links the design to the trend so
+     listing titles and tags ground in the trend's real search demand.
+   - Treat a launch concept's `prompt.concept` as the design brief as-is —
+     do not expand it with extra motifs or palette lists.
 5. Poll `design.get_generation` with `wait_sec` (single poll caps at 50s; re-poll until done)
 6. `mockup.generate` with explicit `kinds`
 7. Poll `mockup.get_generation` with the returned `handle` (when `handle` is null, every mockup already existed — read them via `mockup.list`)
