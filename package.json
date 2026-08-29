@@ -17,7 +17,10 @@
     "optimize-product": "npm run build --silent && node dist/skills/optimize-product/run.js",
     "make-content": "npm run build --silent && node dist/skills/make-content/run.js",
     "typecheck": "tsc --noEmit",
-    "validate": "node scripts/validate.mjs"
+    "validate": "node scripts/validate.mjs",
+    "docs:dev": "npm --prefix docs-site run dev",
+    "docs:build": "npm --prefix docs-site run build",
+    "docs:preview": "npm --prefix docs-site run preview"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.23.0"

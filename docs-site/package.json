@@ -1,0 +1,24 @@
+{
+  "name": "@vaybel/skills-docs",
+  "version": "0.2.0",
+  "private": true,
+  "type": "module",
+  "description": "Documentation site for Vaybel Skills, published to GitHub Pages.",
+  "license": "Apache-2.0",
+  "scripts": {
+    "sync": "node scripts/sync-docs.mjs",
+    "dev": "npm run sync && astro dev",
+    "start": "npm run dev",
+    "build": "npm run sync && astro build",
+    "preview": "astro preview",
+    "check": "npm run sync && astro check"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "^0.41.10",
+    "astro": "^7.2.9",
+    "sharp": "^0.34.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

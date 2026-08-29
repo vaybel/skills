@@ -21,10 +21,13 @@ agent marketplaces.
       `VAYBEL_PAT=... VAYBEL_SMOKE_ENABLE_WRITES=1 VAYBEL_SMOKE_LISTING_ID=<listing-id> scripts/smoke/host_install_smoke.sh`.
 - [ ] No docs ask users to paste PATs into chat.
 - [ ] README lists all shipped workflow and insight skills.
+- [ ] Docs site builds: `npm run docs:build`.
+- [ ] GitHub Pages source is set to **GitHub Actions** and
+      <https://vaybel.github.io/skills/> serves the current skills.
 
 ## GitHub Release
 
-- [ ] Tag `v0.1.0`.
+- [ ] Tag `v<VERSION>` to match the root `VERSION` file.
 - [ ] Release notes include install commands, required env vars, and known v1
       limits.
 - [ ] Attach no secrets, generated mockups, or customer artifacts.

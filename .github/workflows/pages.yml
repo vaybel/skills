@@ -1,0 +1,67 @@
+name: Docs Site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs-site/**"
+      - "skills/**"
+      - "COOKBOOK.md"
+      - "CONTRIBUTING.md"
+      - "DEPLOYMENT.md"
+      - "INSTALL.md"
+      - "INSTALL_FOR_AGENTS.md"
+      - "SECURITY.md"
+      - "VERSION"
+      - "assets/**"
+      - ".github/workflows/pages.yml"
+  pull_request:
+    paths:
+      - "docs-site/**"
+      - "skills/**"
+      - "COOKBOOK.md"
+      - "CONTRIBUTING.md"
+      - "DEPLOYMENT.md"
+      - "INSTALL.md"
+      - "INSTALL_FOR_AGENTS.md"
+      - "SECURITY.md"
+      - "VERSION"
+      - "assets/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+# Allow one concurrent deployment, and let a running deploy finish.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build:
+    name: Build site
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Build with Astro
+        uses: withastro/action@v6
+        with:
+          path: ./docs-site
+          node-version: 24
+
+  deploy:
+    name: Deploy to GitHub Pages
+    # Pull requests build the site as a check, but never publish it.
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v5

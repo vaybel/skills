@@ -1,0 +1,26 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default><slot /></Default>
+
+<aside class="vb-cta">
+  <p class="vb-cta-text">
+    <strong>No Vaybel account yet?</strong> These skills run against your own Vaybel
+    shop — create one to get a PAT, then launch from your agent.
+  </p>
+  <a class="vb-cta-link" href="https://vaybel.com" rel="noopener">
+    Get started on vaybel.com
+    <svg
+      aria-hidden="true"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    >
+      <path d="M5 12h14" /><path d="m12 5 7 7-7 7" />
+    </svg>
+  </a>
+</aside>

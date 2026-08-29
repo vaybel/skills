@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.astro/
+
+# Written by scripts/sync-docs.mjs from the repository sources.
+src/generated/
+src/content/docs/skills/
+src/content/docs/start/
+src/content/docs/project/
+src/content/docs/cookbook.md

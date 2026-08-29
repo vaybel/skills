@@ -1,0 +1,482 @@
+/*
+ * Vaybel design tokens, mirrored from the app:
+ * frontend/apps/vaybel/src/app/globals.css
+ */
+:root {
+  --vb-brand-100: #ffddcb;
+  --vb-brand-400: #f37053;
+  --vb-brand-500: #eb5937;
+  --vb-brand-600: #cf3c12;
+  --vb-brand-700: #b32f0c;
+  --vb-brand-800: #8e230b;
+  --vb-accent-400: #f9a629;
+  --vb-mango: #ff9e00;
+  --vb-mango-dark: #ffb733;
+}
+
+/* Dark theme. Neutral grays, matching the app's neutral chrome. */
+:root,
+::backdrop {
+  --sl-color-white: hsl(0, 0%, 100%);
+  --sl-color-gray-1: hsl(0, 0%, 93%);
+  --sl-color-gray-2: hsl(0, 0%, 76%);
+  --sl-color-gray-3: hsl(0, 0%, 55%);
+  --sl-color-gray-4: hsl(0, 0%, 36%);
+  --sl-color-gray-5: hsl(0, 0%, 22%);
+  --sl-color-gray-6: hsl(0, 0%, 14%);
+  --sl-color-black: hsl(0, 0%, 8%);
+
+  /* Dark mode reverts primary to the softer orange, as the app does. */
+  --sl-color-accent-low: #4a1a0b;
+  --sl-color-accent: #e04d26;
+  --sl-color-accent-high: #f19d2a;
+  --sl-color-text-accent: #f19d2a;
+
+  /* Solid actions keep the brand identity strong, as the app does. */
+  --vb-solid: #e04d26;
+  --vb-solid-hover: #f1603c;
+  --sl-color-bg-accent: var(--vb-solid);
+  --sl-color-text-invert: #fff;
+}
+
+:root[data-theme="light"],
+[data-theme="light"] ::backdrop {
+  --sl-color-white: hsl(0, 0%, 9%);
+  --sl-color-gray-1: hsl(0, 0%, 15%);
+  --sl-color-gray-2: hsl(0, 0%, 25%);
+  --sl-color-gray-3: hsl(0, 0%, 42%);
+  --sl-color-gray-4: hsl(0, 0%, 58%);
+  --sl-color-gray-5: hsl(0, 0%, 80%);
+  --sl-color-gray-6: hsl(0, 0%, 93%);
+  --sl-color-gray-7: hsl(0, 0%, 97%);
+  --sl-color-black: hsl(0, 0%, 100%);
+
+  --sl-color-accent-low: var(--vb-brand-100);
+  --sl-color-accent: var(--vb-brand-600);
+  --sl-color-accent-high: var(--vb-brand-800);
+  --sl-color-text-accent: var(--vb-brand-600);
+
+  --vb-solid: var(--vb-brand-600);
+  --vb-solid-hover: var(--vb-brand-700);
+}
+
+:root {
+  --sl-font: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --sl-nav-height: 4rem;
+}
+
+/* App typography: semibold, tight tracking. */
+h1,
+h2,
+h3,
+h4,
+h5,
+.site-title {
+  letter-spacing: -0.02em;
+  font-weight: 600;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+
+/* Starlight tints the site title with the accent; the app keeps it neutral. */
+.site-title {
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-lg);
+}
+
+/* Default sizing scales the mark to the full nav height, which is far too
+   heavy. The app navbar renders the logo at 28px. */
+.site-title img {
+  height: 1.625rem;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+
+.hero h1 {
+  font-size: clamp(var(--sl-text-4xl), calc(0.25rem + 4vw), 3.5rem);
+  letter-spacing: -0.03em;
+}
+
+/* Title highlight — the app's orange → mango gradient. */
+.vb-grad {
+  background-image: linear-gradient(to right, var(--vb-brand-600), var(--vb-mango));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+:root:not([data-theme="light"]) .vb-grad {
+  background-image: linear-gradient(to right, var(--vb-brand-400), var(--vb-mango-dark));
+}
+
+.hero .tagline {
+  font-size: var(--sl-text-lg);
+  line-height: 1.6;
+  max-width: 46ch;
+}
+
+/* Solid buttons follow the app's primary-solid, not the softer text accent. */
+.sl-link-button.primary,
+.sl-link-button.primary:hover {
+  background: var(--vb-solid);
+  border-color: var(--vb-solid);
+  color: #fff;
+  border-radius: 0.625rem;
+}
+
+.sl-link-button.primary:hover {
+  background: var(--vb-solid-hover);
+  border-color: var(--vb-solid-hover);
+}
+
+.sl-link-button.secondary,
+.sl-link-button.minimal {
+  border-radius: 0.625rem;
+}
+
+/* ── Terminal card (hero) ────────────────────────────────────────────────── */
+
+.vb-term {
+  width: 100%;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+  overflow: hidden;
+  box-shadow: var(--sl-shadow-md);
+  font-size: var(--sl-text-xs);
+}
+
+.vb-term-bar {
+  display: flex;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  border-bottom: 1px solid var(--sl-color-hairline);
+}
+
+.vb-term-bar i {
+  width: 0.625rem;
+  height: 0.625rem;
+  border-radius: 50%;
+  background: rgb(248 113 113 / 0.8);
+}
+
+.vb-term-bar i:nth-child(2) {
+  background: rgb(250 204 21 / 0.8);
+}
+
+.vb-term-bar i:nth-child(3) {
+  background: rgb(74 222 128 / 0.8);
+}
+
+.vb-term-body {
+  padding: 0.875rem 1rem 1rem;
+  font-family: var(--sl-font-mono);
+  line-height: 1.9;
+}
+
+.vb-term-body p {
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vb-term-body p + p {
+  margin-top: 0.125rem;
+}
+
+.vb-cmd {
+  color: var(--sl-color-text-accent);
+  font-weight: 600;
+}
+
+.vb-out {
+  color: var(--sl-color-gray-3);
+}
+
+.vb-out + p {
+  margin-top: 0.625rem !important;
+}
+
+/* ── Skill invoke block ─────────────────────────────────────────────────── */
+
+.vb-invoke {
+  margin: 1.5rem 0 1.75rem;
+  padding: 0.875rem 1rem 1rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-left: 3px solid var(--sl-color-accent);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+}
+
+.sl-markdown-content .vb-invoke-label {
+  margin: 0 0 0.5rem !important;
+  font-size: var(--sl-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sl-color-text-accent) !important;
+}
+
+/* Let the command sit directly in the card instead of a nested code frame. */
+.vb-invoke .expressive-code {
+  margin-top: 0 !important;
+}
+
+.vb-invoke .expressive-code .frame pre {
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.vb-invoke .expressive-code .frame {
+  box-shadow: none;
+}
+
+
+/* ── Cards ──────────────────────────────────────────────────────────────── */
+
+/* The app renders feature icons as a bare stroke icon in the primary color —
+   no chip, no tinted box. */
+.vb-cards {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin: 1.5rem 0;
+}
+
+@media (min-width: 50rem) {
+  .vb-cards {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Starlight adds a top margin to every sibling in markdown content, which
+   knocks grid and flex children out of alignment. */
+.sl-markdown-content .vb-cards > *,
+.sl-markdown-content .vb-flow-row > *,
+.sl-markdown-content .vb-flow-branch > * {
+  margin-top: 0;
+}
+
+.vb-card {
+  padding: 1.5rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  background: var(--sl-color-black);
+}
+
+.vb-card-icon {
+  width: 1.75rem;
+  height: 1.75rem;
+  color: var(--sl-color-text-accent);
+}
+
+.vb-card h3 {
+  margin: 0.75rem 0 0;
+  font-size: var(--sl-text-lg);
+  font-weight: 600;
+  color: var(--sl-color-white);
+}
+
+.vb-card p {
+  margin: 0.5rem 0 0;
+  font-size: var(--sl-text-sm);
+  line-height: 1.65;
+  color: var(--sl-color-gray-2);
+}
+
+.sl-link-card {
+  border-radius: 0.75rem;
+}
+
+/* ── Sidebar ────────────────────────────────────────────────────────────── */
+
+@media (min-width: 50rem) {
+  /* Top-level groups read as quiet section headers, as in the app sidebar. */
+  #starlight__sidebar .top-level > li > details > summary .large {
+    font-size: var(--sl-text-2xs);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sl-color-gray-3);
+  }
+
+  /* Nested group labels and top-level links share the link scale. */
+  #starlight__sidebar .large {
+    font-size: var(--sl-text-sm);
+    font-weight: 500;
+  }
+
+  #starlight__sidebar .top-level > li + li {
+    margin-top: 0.875rem;
+  }
+
+  #starlight__sidebar a,
+  #starlight__sidebar summary {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.375rem;
+  }
+}
+
+/* Solid accent bars are heavy; the app marks selection with a soft brand tint. */
+#starlight__sidebar [aria-current="page"],
+#starlight__sidebar [aria-current="page"]:hover,
+#starlight__sidebar [aria-current="page"]:focus {
+  font-weight: 600;
+  color: var(--sl-color-text-accent);
+  background-color: color-mix(in srgb, var(--sl-color-accent) 12%, transparent);
+}
+
+/* ── Pagination ─────────────────────────────────────────────────────────── */
+
+.pagination-links a {
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
+  box-shadow: none;
+  font-size: var(--sl-text-2xs);
+}
+
+.pagination-links .link-title {
+  font-size: var(--sl-text-sm);
+  font-weight: 500;
+}
+
+.pagination-links svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ── Footer call to action ──────────────────────────────────────────────── */
+
+.vb-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem 1.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--sl-color-gray-5);
+  border-radius: 0.75rem;
+  background: var(--sl-color-bg-nav);
+}
+
+.vb-cta-text {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--sl-text-sm);
+  line-height: 1.6;
+  color: var(--sl-color-gray-2);
+}
+
+.vb-cta-text strong {
+  color: var(--sl-color-white);
+}
+
+.vb-cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  flex: none;
+  padding: 0.5rem 0.875rem;
+  border-radius: 0.625rem;
+  background: var(--vb-solid);
+  color: #fff;
+  font-size: var(--sl-text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease;
+}
+
+.vb-cta-link:hover {
+  background: var(--vb-solid-hover);
+}
+
+.vb-cta-link svg {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* ── Flow diagrams ───────────────────────────────────────────────────────── */
+
+.vb-flow {
+  margin: 1.75rem 0;
+}
+
+.vb-flow-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vb-node {
+  display: inline-block;
+  padding: 0.4375rem 0.875rem;
+  border: 1px solid var(--sl-color-hairline);
+  border-radius: 0.5rem;
+  background: var(--sl-color-bg-nav);
+  color: var(--sl-color-white);
+  font-size: var(--sl-text-sm);
+  font-weight: 500;
+  line-height: 1.3;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+a.vb-node:hover {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-text-accent);
+}
+
+.vb-node--endpoint {
+  border-color: var(--sl-color-accent);
+  color: var(--sl-color-text-accent);
+  font-family: var(--sl-font-mono);
+}
+
+.vb-node--mono {
+  font-family: var(--sl-font-mono);
+  font-weight: 400;
+  font-size: var(--sl-text-xs);
+}
+
+.vb-arrow {
+  color: var(--sl-color-gray-4);
+  font-size: var(--sl-text-sm);
+  user-select: none;
+}
+
+/* The insights branch feeding back into the chain. */
+.vb-flow-branch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.375rem;
+}
+
+/* Elbow rising from this row up into the chain above it. */
+.vb-flow-branch::before {
+  content: "";
+  flex: none;
+  width: 1.25rem;
+  height: 1.5rem;
+  margin: -1.5rem 0.25rem 0 1.25rem;
+  border-left: 1px solid var(--sl-color-gray-5);
+  border-bottom: 1px solid var(--sl-color-gray-5);
+  border-bottom-left-radius: 0.5rem;
+}
+
+.vb-flow-note {
+  color: var(--sl-color-gray-3);
+  font-size: var(--sl-text-sm);
+}
+
+/* Slash commands read as commands, not prose. */
+.sl-markdown-content code {
+  font-variant-ligatures: none;
+}

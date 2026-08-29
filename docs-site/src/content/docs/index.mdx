@@ -1,0 +1,155 @@
+---
+title: Vaybel Skills
+description: Agent skills that run print-on-demand workflows through the public Vaybel MCP server — trend discovery, product launch, provider optimization, social content, and insights.
+template: splash
+hero:
+  title: Vaybel <span class="vb-grad">Skills</span>
+  tagline: Find a trend, launch the product, optimize the listing, make the content — from your coding agent, through the public Vaybel MCP server.
+  image:
+    html: |
+      <div class="vb-term">
+        <div class="vb-term-bar"><i></i><i></i><i></i></div>
+        <div class="vb-term-body">
+          <p><span class="vb-cmd">/vaybel:find-trend</span> tshirt --lifecycle rising</p>
+          <p class="vb-out">→ Coastal Grandma Revival · rising · 4 keywords</p>
+          <p><span class="vb-cmd">/vaybel:launch-product</span> "washed trail tee"</p>
+          <p class="vb-out">→ design ✓ · 5 mockups ✓ · ready to list</p>
+        </div>
+      </div>
+  actions:
+    - text: Install
+      link: /skills/start/install/
+      icon: right-arrow
+    - text: View on GitHub
+      link: https://github.com/vaybel/skills
+      icon: external
+      variant: minimal
+---
+
+import { CardGrid, LinkCard, Steps } from '@astrojs/starlight/components';
+import index from '../../generated/skills.json';
+
+export const withBase = (page) => `${import.meta.env.BASE_URL.replace(/\/$/, '')}/${page}`;
+
+## Install
+
+<Steps>
+
+1. Add the marketplace and install the plugin in Claude Code:
+
+   ```text
+   /plugin marketplace add vaybel/skills
+   /plugin install vaybel@vaybel
+   ```
+
+2. Set `VAYBEL_PAT` once in your agent settings, and reuse it for both the
+   Vaybel MCP server and these skills. Create a PAT in Vaybel at
+   **Dashboard → Settings → MCP** — [create a free account](https://vaybel.com)
+   first if you do not have one.
+
+3. Run a workflow:
+
+   ```text
+   /vaybel:launch-product "washed trail running poster art on a heavyweight tee"
+   ```
+
+</Steps>
+
+Prefer a clone, or installing into Codex or Cursor? See [Install](/skills/start/install/).
+
+## The five skills
+
+Each skill maps to one Vaybel dashboard workflow, so what the agent does and
+what you would have done by hand stay the same shape.
+
+<CardGrid>
+  {index.skills.map((skill) => (
+    <LinkCard
+      title={skill.title}
+      href={withBase(`skills/${skill.slug}/`)}
+      description={skill.summary}
+    />
+  ))}
+</CardGrid>
+
+The four workflow skills chain in the order you would run them in the app:
+
+<div class="vb-flow">
+  <div class="vb-flow-row">
+    <a class="vb-node" href={withBase('skills/find-trend/')}>Find Trend</a>
+    <span class="vb-arrow">→</span>
+    <a class="vb-node" href={withBase('skills/launch-product/')}>Launch Product</a>
+    <span class="vb-arrow">→</span>
+    <a class="vb-node" href={withBase('skills/optimize-product/')}>Optimize Product</a>
+    <span class="vb-arrow">→</span>
+    <a class="vb-node" href={withBase('skills/make-content/')}>Make Content</a>
+  </div>
+  <div class="vb-flow-branch">
+    <a class="vb-node" href={withBase('skills/analyze-insights/')}>Analyze Insights</a>
+    <span class="vb-flow-note">read-only — tells you which one to run next</span>
+  </div>
+</div>
+
+## How it works
+
+Vaybel Skills follow the code-execution-with-MCP pattern. A skill is not a pile
+of tool calls for the model to sequence — it is a `SKILL.md` that tells the
+agent when to run the workflow, plus a TypeScript runner that does the
+sequencing, waiting, and error handling deterministically.
+
+<div class="vb-flow">
+  <div class="vb-flow-row">
+    <span class="vb-node vb-node--mono">SKILL.md</span>
+    <span class="vb-arrow">→</span>
+    <span class="vb-node vb-node--mono">run.ts</span>
+    <span class="vb-arrow">→</span>
+    <span class="vb-node vb-node--mono">servers/vaybel</span>
+    <span class="vb-arrow">→</span>
+    <span class="vb-node vb-node--mono">client.ts</span>
+    <span class="vb-arrow">→</span>
+    <span class="vb-node vb-node--mono vb-node--endpoint">mcp.vaybel.com</span>
+  </div>
+</div>
+
+<div class="vb-cards">
+  <div class="vb-card">
+    <svg class="vb-card-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z" /></svg>
+    <h3>One tool call, not twenty</h3>
+    <p>The runner handles credit checks, generation polling, and retries. The agent gets back a short summary with dashboard links instead of raw MCP payloads.</p>
+  </div>
+  <div class="vb-card">
+    <svg class="vb-card-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" /><path d="m9 12 2 2 4-4" /></svg>
+    <h3>Public MCP only</h3>
+    <p>No private REST APIs, no Vaybel CLI dependency. Everything the skills do, you can do with the same public MCP surface.</p>
+  </div>
+  <div class="vb-card">
+    <svg class="vb-card-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="currentColor" /></svg>
+    <h3>One shared secret</h3>
+    <p><code>VAYBEL_PAT</code> authenticates both the MCP server and the skills. Tokens are never requested in chat.</p>
+  </div>
+  <div class="vb-card">
+    <svg class="vb-card-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 22V7a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-5a1 1 0 0 0-1-1H2" /><rect x="14" y="2" width="8" height="8" rx="1" /></svg>
+    <h3>Portable across agents</h3>
+    <p>Ships Claude Code, Codex, and Cursor plugin manifests from the same <code>skills/</code> directory.</p>
+  </div>
+</div>
+
+## Next
+
+<CardGrid>
+  <LinkCard
+    title="Cookbook"
+    href={withBase("cookbook/")}
+    description="Copy-paste recipes: force AOP, launch with product videos, optimize a Printify product."
+  />
+  <LinkCard
+    title="Install for agents"
+    href={withBase("start/for-agents/")}
+    description="Point an agent at this page when you want it to install the skills itself."
+  />
+  <LinkCard
+    title="Contributing"
+    href={withBase("project/contributing/")}
+    description="The rules a new skill has to follow, and the checks that enforce them."
+  />
+</CardGrid>

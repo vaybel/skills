@@ -3,6 +3,8 @@
 Vaybel Skills are agent workflows for operating clothing-product workflows
 through the public Vaybel MCP server.
 
+Documentation: <https://vaybel.github.io/skills/>
+
 This repo follows the code-execution-with-MCP pattern:
 
 ```text
@@ -75,6 +77,7 @@ skills/*/                    SKILL.md plus TypeScript orchestration per workflow
 .claude-plugin/              Claude Code marketplace metadata
 .codex-plugin/               Codex plugin metadata
 .cursor-plugin/              Cursor plugin metadata
+docs-site/                   Astro Starlight documentation site (GitHub Pages)
 scripts/validate.mjs         structural validation for skills and manifests
 scripts/smoke/               clean-project host install smoke tests
 DEPLOYMENT.md                marketplace deployment checklist
@@ -94,3 +97,18 @@ The smoke script creates a clean sibling project, installs the plugin into
 isolated Claude and Codex homes when those CLIs are available, and runs every
 skill runner in no-token mode. It uses `tmux` automatically when installed;
 pass `--no-tmux` to run serially.
+
+## Docs Site
+
+The published docs at <https://vaybel.github.io/skills/> are generated from this
+repository, not maintained separately. `docs-site/scripts/sync-docs.mjs` rebuilds
+every page from `skills/*/SKILL.md`, the skill `references/`, and the root
+Markdown files, so the site cannot drift from the skills it documents.
+
+```bash
+npm run docs:dev      # local dev server
+npm run docs:build    # production build into docs-site/dist
+```
+
+`.github/workflows/pages.yml` builds the site on every pull request and deploys
+it to GitHub Pages on push to `main`.
