@@ -9,9 +9,7 @@ description: |
 argument-hint: [product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
-  hermes:
-    tags: [vaybel, trend, discovery]
-    requires_tools: [terminal]
+  tags: [vaybel, trend, discovery]
 required_environment_variables:
   - name: VAYBEL_PAT
     prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
@@ -47,11 +45,6 @@ npm --prefix "$PLUGIN_ROOT" run find-trend -- --no-concept
 Substitute the resolved absolute path for `$PLUGIN_ROOT` in the actual bash
 call. If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install`
 once.
-
-On **Hermes**, the skill dir is `${HERMES_SKILL_DIR}` and the plugin root is
-`${HERMES_SKILL_DIR}/../..`. If the root is read-only (baked into an image), skip
-`npm run` (it rebuilds) and call the prebuilt runner directly:
-`node "${HERMES_SKILL_DIR}/../../dist/skills/find-trend/run.js" [product-type] --lifecycle rising --json`.
 
 ## Required Environment
 
