@@ -1,6 +1,6 @@
 ---
 name: vaybel:find-trend
-version: 0.2.0
+version: 0.3.0
 description: |
   Find a Vaybel product trend through the public MCP server. Use when the user
   wants trend discovery, ranked opportunities, seasonal or brand-fit trend
@@ -12,7 +12,7 @@ metadata:
   tags: [vaybel, trend, discovery]
 required_environment_variables:
   - name: VAYBEL_PAT
-    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    prompt: "Vaybel PAT (Dashboard -> Settings -> API & MCP)"
     required_for: "Vaybel MCP access"
 ---
 

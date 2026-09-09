@@ -3,10 +3,14 @@
 ## Prerequisites
 
 - Node.js 20 or newer.
-- A Vaybel MCP PAT with the scopes needed by the skills you plan to run.
+- A Vaybel MCP PAT. New PATs default to all scopes (`["*"]`), which also covers
+  scopes added later — including `integration:read`, used by launch-product's
+  listing-channel preflight.
 - Network access to `https://mcp.vaybel.com/`.
 
-Create a PAT in Vaybel at `Dashboard -> Settings -> MCP`.
+Create a PAT in Vaybel at `Dashboard -> Settings -> API & MCP`. New PATs are
+created with all scopes by default, so you do not need to hand-pick scopes for
+these skills.
 
 For Claude Code installs, prefer defining it once as `VAYBEL_PAT` in Claude Code
 settings and reuse `${VAYBEL_PAT}` from the Vaybel MCP config. For manual

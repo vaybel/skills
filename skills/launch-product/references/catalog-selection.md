@@ -1,6 +1,8 @@
 # Catalog Selection
 
-Use `--product` when the user provides an exact catalog product UUID or SKU.
+Use `--product` when the user provides a catalog product UUID or SKU. A Vaybel
+entity id such as the product UUID also accepts a unique prefix of at least 8 hex
+characters in place of the full UUID; a SKU must be given in full.
 
 Without `--product`, the runner selects the first catalog result from:
 

@@ -1,6 +1,6 @@
 ---
 name: vaybel:analyze-insights
-version: 0.2.0
+version: 0.3.0
 description: |
   Get Vaybel shop insights through the public MCP server. Use when the user
   wants performance KPIs, channel breakdowns, top design snapshots, credit
@@ -13,7 +13,7 @@ metadata:
   tags: [vaybel, insights, analytics]
 required_environment_variables:
   - name: VAYBEL_PAT
-    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    prompt: "Vaybel PAT (Dashboard -> Settings -> API & MCP)"
     required_for: "Vaybel MCP access"
 ---
 

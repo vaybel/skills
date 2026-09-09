@@ -13,6 +13,7 @@ import {
   generateProductVideo,
   getBrandDNA,
   listBlanks,
+  listIntegrations,
   waitForDesign,
   listMockups,
   waitForMockup,
@@ -121,6 +122,10 @@ async function main(): Promise<void> {
 
 async function launchProduct(options: Options): Promise<LaunchSummary> {
   preflightEnvironment();
+
+  if (options.listingChannels.length) {
+    await preflightListingChannels(options.listingChannels);
+  }
 
   const [brand, product] = await Promise.all([getBrandDNA(), resolveProduct(options)]);
   const mockupPlan = buildMockupPlan(product, brand);
@@ -465,6 +470,44 @@ function productVideoChannelForListingChannel(channel: ListingChannel): ProductV
 
 function estimateProductVideoCredits(plan: ProductVideoPlan): number {
   return plan.expected_count * PRODUCT_VIDEO_CREDIT_UNIT;
+}
+
+const INTEGRATIONS_SETTINGS_PATH = "Dashboard -> Settings -> Integrations";
+
+// When listing channels are requested, verify they are connected before any
+// generation runs. A missing sales channel is fatal; a missing fulfillment
+// provider only warns, since design and mockups do not need one.
+async function preflightListingChannels(listingChannels: ListingChannel[]): Promise<void> {
+  const integrations = await listIntegrations();
+  const connected = new Set(
+    integrations.sales_channels
+      .filter((channel) => isConnectedStatus(channel.status))
+      .map((channel) => channel.provider),
+  );
+  const missing = listingChannels.filter((channel) => !connected.has(channel));
+  if (missing.length) {
+    throw new Error(
+      `Requested listing channel(s) not connected: ${missing.join(", ")}. ` +
+        `Connect them in ${INTEGRATIONS_SETTINGS_PATH}, then rerun.`,
+    );
+  }
+
+  const hasFulfillment = integrations.fulfillment_providers.some((provider) =>
+    isConnectedStatus(provider.status),
+  );
+  if (!hasFulfillment) {
+    console.error(
+      `Warning: no fulfillment provider (Printful or Printify) connected in ${INTEGRATIONS_SETTINGS_PATH}. ` +
+        "Design and mockups will still generate, but the listing cannot be fulfilled until you connect one.",
+    );
+  }
+}
+
+// integration.list reports the public "connected" state; the underlying model
+// uses "active". Treat either as a live connection.
+function isConnectedStatus(status: string): boolean {
+  const normalized = (status || "").trim().toLowerCase();
+  return normalized === "connected" || normalized === "active";
 }
 
 async function generateListingProductVideos(

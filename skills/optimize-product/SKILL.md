@@ -1,6 +1,6 @@
 ---
 name: vaybel:optimize-product
-version: 0.2.0
+version: 0.3.0
 description: |
   Optimize an existing Printify or Printful product through the public Vaybel
   MCP server. Use when the user wants to import a connected provider product,
@@ -13,7 +13,7 @@ metadata:
   tags: [vaybel, optimize, import]
 required_environment_variables:
   - name: VAYBEL_PAT
-    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    prompt: "Vaybel PAT (Dashboard -> Settings -> API & MCP)"
     required_for: "Vaybel MCP access"
 ---
 

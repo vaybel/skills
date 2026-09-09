@@ -3,7 +3,7 @@ import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/
 
 const DEFAULT_MCP_URL = "https://mcp.vaybel.com/";
 const CLIENT_NAME = "vaybel-skills";
-const CLIENT_VERSION = "0.2.0";
+const CLIENT_VERSION = "0.3.0";
 
 let clientPromise: Promise<Client> | null = null;
 
@@ -96,7 +96,7 @@ async function connectClient(): Promise<Client> {
     process.env.CLAUDE_PLUGIN_OPTION_vaybel_pat;
   if (!token) {
     throw new VaybelMCPError(
-      "Missing Vaybel auth. Set VAYBEL_PAT to a PAT from Dashboard -> Settings -> MCP.",
+      "Missing Vaybel auth. Set VAYBEL_PAT to a PAT from Dashboard -> Settings -> API & MCP.",
     );
   }
 

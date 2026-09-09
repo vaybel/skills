@@ -143,11 +143,11 @@ export function waitForLaunchConcept(matchId: string, timeoutSec = 180): Promise
   );
 }
 
-// Feedback + seasonal calendar
+// Outcome recording + seasonal calendar
 
-export interface SubmitTrendFeedbackInput {
+export interface RecordTrendOutcomeInput {
   match_id: string;
-  action:
+  outcome:
     | "viewed"
     | "saved"
     | "dismissed"
@@ -160,8 +160,8 @@ export interface SubmitTrendFeedbackInput {
   conversion_rate?: number;
 }
 
-export function submitTrendFeedback(input: SubmitTrendFeedbackInput): Promise<{ status: string }> {
-  return callMCPTool<{ status: string }>("trend.submit_feedback", input);
+export function recordTrendOutcome(input: RecordTrendOutcomeInput): Promise<{ status: string }> {
+  return callMCPTool<{ status: string }>("trend.record_outcome", input);
 }
 
 export interface SeasonalEvent {

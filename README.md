@@ -14,6 +14,9 @@ Agent skill -> TypeScript orchestration -> mcp.vaybel.com
 There is no CLI dependency in v1. Skills call MCP through the small wrappers in
 `servers/vaybel/`, authenticated by `VAYBEL_PAT`.
 
+These skills are the advanced user's starting point: fork them and iterate on the
+orchestration to fit your own workflow. The public MCP and REST surface is deliberately made of primitives; workflows are yours to compose, fork, and tweak here.
+
 ## Skills
 
 - `/vaybel:find-trend` - find a trend opportunity and generate a launch

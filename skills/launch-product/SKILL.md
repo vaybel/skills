@@ -1,6 +1,6 @@
 ---
 name: vaybel:launch-product
-version: 0.2.0
+version: 0.3.0
 description: |
   Launch a Vaybel product through the public MCP server. Use when the user wants
   to create a new apparel product, turn a prompt into a design, generate
@@ -13,7 +13,7 @@ metadata:
   tags: [vaybel, product, design, mockup]
 required_environment_variables:
   - name: VAYBEL_PAT
-    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    prompt: "Vaybel PAT (Dashboard -> Settings -> API & MCP)"
     required_for: "Vaybel MCP access"
 ---
 
@@ -67,10 +67,14 @@ when unspecified.
 
 Use `--listing-channels` only when the user knows where this product will be
 listed. It accepts `tiktok_shop`, `etsy`, and `shopify` as a comma-separated
-list. The runner generates product videos only for supported video destinations:
-TikTok Shop and Etsy. Shopify is accepted as a listing target but skipped for
-product-video generation because the public product-video MCP tool does not
-expose a Shopify-specific video channel.
+list. When supplied, the runner calls `integration.list` before any generation
+and fails fast if a requested channel is not connected, naming the missing
+channels and pointing to `Dashboard -> Settings -> Integrations`. If no
+fulfillment provider (Printful or Printify) is connected it warns but continues,
+since design and mockups do not need one. The runner generates product videos
+only for supported video destinations: TikTok Shop and Etsy. Shopify is accepted
+as a listing target but skipped for product-video generation because the public
+product-video MCP tool does not expose a Shopify-specific video channel.
 
 If dependencies are missing, run `npm --prefix "$PLUGIN_ROOT" install` once.
 
@@ -97,15 +101,18 @@ Plan gates:
 
 The runner will:
 
-1. Check credits for the design plus mockup work.
-2. Read Brand DNA and fold concise brand context into the prompt.
-3. Resolve a catalog product from `--product`, or choose one with catalog
+1. If `--listing-channels` is supplied, call `integration.list` and stop when any
+   requested channel is not connected; warn (but continue) when no Printful or
+   Printify fulfillment provider is connected.
+2. Check credits for the design plus mockup work.
+3. Read Brand DNA and fold concise brand context into the prompt.
+4. Resolve a catalog product from `--product`, or choose one with catalog
    filters.
-4. Generate the design and wait for completion.
-5. Generate listing-ready mockups and wait for completion.
-6. If listing channels were supplied, generate only the product videos those
+5. Generate the design and wait for completion.
+6. Generate listing-ready mockups and wait for completion.
+7. If listing channels were supplied, generate only the product videos those
    channels can use.
-7. Print a short launch summary with product, design, grouped mockup links, and
+8. Print a short launch summary with product, design, grouped mockup links, and
    the Vaybel dashboard URL.
 
 Mockup policy:

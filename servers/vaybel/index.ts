@@ -4,6 +4,7 @@ export * from "./credits.js";
 export * from "./design.js";
 export * from "./content.js";
 export * from "./insight.js";
+export * from "./integration.js";
 export * from "./listing.js";
 export * from "./mockup.js";
 export * from "./optimize.js";

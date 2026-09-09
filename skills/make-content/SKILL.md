@@ -1,6 +1,6 @@
 ---
 name: vaybel:make-content
-version: 0.2.0
+version: 0.3.0
 description: |
   Make Vaybel social content through the public MCP server. Use when the user
   wants to generate a video, slideshow, carousel, or single-photo post from an
@@ -13,7 +13,7 @@ metadata:
   tags: [vaybel, content, social]
 required_environment_variables:
   - name: VAYBEL_PAT
-    prompt: "Vaybel PAT (Dashboard -> Settings -> MCP)"
+    prompt: "Vaybel PAT (Dashboard -> Settings -> API & MCP)"
     required_for: "Vaybel MCP access"
 ---
 
@@ -69,7 +69,8 @@ The runner will:
 ## Rules
 
 - Call only the bundled runner. Do not call Vaybel APIs directly.
-- Require an existing listing ID.
+- Require an existing listing ID. A unique prefix of at least 8 hex characters of
+  the listing UUID is accepted in place of the full id.
 - Do not publish unless the user explicitly asks to publish.
 - For `slideshow`, `carousel`, or `single`, require one or more `--image-url`
   values.

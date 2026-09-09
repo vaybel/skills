@@ -257,6 +257,7 @@ function validateWrappers() {
     "insight.get_overview",
     "insight.list_design_performance",
     "insight.get_guidance",
+    "integration.list",
     "optimize.run",
     "optimize.get_generation",
     "listing.list_warehouses",

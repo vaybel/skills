@@ -8,6 +8,8 @@
 - `--trend <uuid>`: skip ranking and load a specific named trend.
 - `--match <uuid>`: keyword-direct mode — concept against a specific keyword
   row (from a previous run's `keywords[]`).
+- `--trend` and `--match` accept a unique prefix of at least 8 hex characters of
+  the UUID instead of the full id.
 - `--no-concept`: read-only browse mode. No concept generation.
 - `--seasonal-events`: include current seasonal-calendar context.
 - `--limit N`: page size for trend ranking. Default: 10.

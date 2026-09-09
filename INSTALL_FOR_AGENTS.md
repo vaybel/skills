@@ -12,10 +12,11 @@ Use this path when Claude Code supports plugins in the user's environment:
 ```
 
 Tell the user to configure the sensitive `vaybel_pat` plugin option with a PAT
-from Vaybel `Dashboard -> Settings -> MCP` only if they do not already expose
+from Vaybel `Dashboard -> Settings -> API & MCP` only if they do not already expose
 `VAYBEL_PAT` to Claude Code. Preferred setup is one shared `VAYBEL_PAT` used by
-both the Vaybel MCP server and this skill. Do not ask them to paste the token in
-chat.
+both the Vaybel MCP server and this skill. New PATs default to all scopes, so a
+fresh PAT already carries everything these skills need (including
+`integration:read`). Do not ask them to paste the token in chat.
 
 Then invoke:
 
