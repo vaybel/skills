@@ -21,6 +21,9 @@ orchestration to fit your own workflow. The public MCP and REST surface is delib
 
 - `/vaybel:find-trend` - find a trend opportunity and generate a launch
   concept.
+- `/vaybel:plan-drop` - plan a themed release: create or open a drop, see
+  which trends fit its brief, pin them, file designs into it, and read its
+  readiness.
 - `/vaybel:launch-product` - select a blank, generate a design, generate
   listing-ready mockups, optionally generate listing product videos, and return
   concise launch links.
@@ -37,6 +40,8 @@ The scope matches the four primary Vaybel workflows:
 Find Trend -> Launch Product -> Optimize Product -> Make Content
 ```
 
+`plan-drop` wraps that loop in a release: a drop pins the trends that fit its
+brief and tracks the designs launched from them until they are live.
 `analyze-insights` is a read-only management skill for deciding which workflow to
 run next.
 
@@ -56,6 +61,7 @@ settings, and reference it from the Vaybel MCP server config. Then run:
 /vaybel:launch-product "washed trail running poster art on a heavyweight tee"
 /vaybel:launch-product "washed trail running poster art on a heavyweight tee" --listing-channels tiktok_shop,etsy
 /vaybel:find-trend tshirt --lifecycle rising
+/vaybel:plan-drop "Fall '26" --kind seasonal --date 2026-10-01 --motifs pumpkin,moon
 /vaybel:optimize-product --provider printify --product-id <external-id>
 /vaybel:make-content <listing-id> --channels tiktok,instagram
 /vaybel:analyze-insights --range 28d

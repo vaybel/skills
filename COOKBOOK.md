@@ -9,6 +9,19 @@
 The skill ranks trend matches, generates a launch concept when needed, and
 returns product UUIDs that can be fed into launch-product.
 
+## Plan a Drop Around a Trend
+
+```text
+/vaybel:plan-drop "Cowgirl capsule" --trend <named-trend-uuid> --date 2026-10-01
+/vaybel:plan-drop --drop <drop-uuid> --pin-top 2
+```
+
+The first call creates the drop with the trend pinned and the brief seeded from
+it. The second ranks the workspace's trends against that brief and pins the two
+strongest. Launch from a suggestion with `/vaybel:find-trend --match
+<concept-id>` and `/vaybel:launch-product`, then file the design with
+`/vaybel:plan-drop --drop <drop-uuid> --attach-design <design-id>`.
+
 ## Launch a Tee From a Prompt
 
 ```text
@@ -81,3 +94,4 @@ channels, and only publishes when `--publish` is explicitly included.
 The skill returns KPIs, channel breakdowns, top design snapshots, credit state,
 and next-best-action guidance. Use it before choosing which product workflow to
 run next.
+

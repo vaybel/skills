@@ -18,11 +18,12 @@ There is no Vaybel CLI dependency in v1.
 
 ## Skills
 
-This repo ships four workflow skills that match the main Vaybel dashboard
+This repo ships five workflow skills that match the main Vaybel dashboard
 workflows, plus one read-only insights skill:
 
 ```text
 Find Trend
+Plan Drop
 Launch Product
 Optimize Product
 Make Content

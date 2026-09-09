@@ -2,6 +2,7 @@ export * from "./brand.js";
 export * from "./catalog.js";
 export * from "./credits.js";
 export * from "./design.js";
+export * from "./drop.js";
 export * from "./content.js";
 export * from "./insight.js";
 export * from "./integration.js";

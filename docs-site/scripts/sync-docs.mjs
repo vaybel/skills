@@ -230,7 +230,7 @@ function syncRootPages() {
 }
 
 /** Order used for both the sidebar and the home-page skill cards. */
-const SKILL_ORDER = ["find-trend", "launch-product", "optimize-product", "make-content", "analyze-insights"];
+const SKILL_ORDER = ["find-trend", "plan-drop", "launch-product", "optimize-product", "make-content", "analyze-insights"];
 
 /**
  * Skill metadata consumed by astro.config.mjs and the home page, so the
