@@ -29,6 +29,14 @@ Product -> Design -> Mockups
 Content and provider-product import are handled by separate workflow skills.
 Return dashboard links so the user can continue manually.
 
+## Choose the blank first
+
+Read [Catalog selection](references/catalog-selection.md). Use the bundled
+`blank-research` runner to discover and compare cited suitability, tradeoffs,
+materials and sizes before generation. Pass the selected full product UUID or
+exact SKU with `--product`. If multiple blanks match, the launch runner stops
+before spending generation credits.
+
 ## Execution
 
 Use the bundled TypeScript runner. The `launch-product` npm script lives in
@@ -106,8 +114,8 @@ The runner will:
    Printify fulfillment provider is connected.
 2. Check credits for the design plus mockup work.
 3. Read Brand DNA and fold concise brand context into the prompt.
-4. Resolve a catalog product from `--product`, or choose one with catalog
-   filters.
+4. Validate the selected catalog product from `--product`, or accept a unique
+   catalog match. Multiple matches require an explicit selection.
 5. Generate the design and wait for completion.
 6. Generate listing-ready mockups and wait for completion.
 7. If listing channels were supplied, generate only the product videos those
@@ -142,7 +150,7 @@ Product-video policy:
 
 ## Rules
 
-- Call only the bundled runner. Do not call Vaybel APIs directly.
+- Call only the bundled launch or read-only blank-research runner. Do not call Vaybel APIs directly.
 - Do not shell out to a Vaybel CLI.
 - Do not invent product UUIDs or SKUs.
 - Stop if auth, catalog lookup, credits, design generation, or mockup generation

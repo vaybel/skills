@@ -12,7 +12,8 @@ Expected:
 
 - checks credits
 - reads brand DNA
-- selects a tee blank
+- compares researched suitability and tradeoffs before selecting a tee blank
+- passes the selected UUID explicitly; ambiguous matches stop before generation
 - calls `design.generate`
 - polls `design.get_generation` until done
 - calls `mockup.generate` with `kinds` including `flat` and `vto`
@@ -83,3 +84,12 @@ Expected:
 
 - stops before design generation
 - reports balance and required credits
+
+## Research-only selection
+
+- blank-research discovery, detail and comparison call only catalog read tools
+- missing research stays explicit and does not imply unavailable catalog products
+- source URLs, claims and material scopes survive in output
+- print/provider/shipping performance is never ranked as garment quality
+- two to four distinct products can be compared; invalid IDs stop before calls
+- no generation or credit-spending tools are called by blank-research

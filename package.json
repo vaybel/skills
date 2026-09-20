@@ -21,7 +21,8 @@
     "validate": "node scripts/validate.mjs",
     "docs:dev": "npm --prefix docs-site run dev",
     "docs:build": "npm --prefix docs-site run build",
-    "docs:preview": "npm --prefix docs-site run preview"
+    "docs:preview": "npm --prefix docs-site run preview",
+    "blank-research": "npm run build --silent && node dist/skills/launch-product/research.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.23.0"

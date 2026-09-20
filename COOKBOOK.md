@@ -28,8 +28,10 @@ strongest. Launch from a suggestion with `/vaybel:find-trend --match
 /vaybel:launch-product "distressed motocross type treatment, washed black tee"
 ```
 
-The skill will search for a tee blank, generate a design, create listing-ready
-mockups, and return a concise launch summary.
+The skill first discovers and compares suitable blanks using the read-only
+blank-research runner. Pass the selected UUID with --product to generate the
+design and listing-ready mockups. Multiple catalog matches never silently
+select the first result.
 
 ## Launch With Listing Product Videos
 

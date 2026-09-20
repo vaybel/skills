@@ -12,6 +12,7 @@ import {
   generateMockup,
   generateProductVideo,
   getBrandDNA,
+  getBlank,
   listBlanks,
   listIntegrations,
   waitForDesign,
@@ -238,17 +239,7 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
 async function resolveProduct(options: Options): Promise<CatalogProduct> {
   if (options.product) {
     if (looksLikeUuid(options.product)) {
-      return {
-        uuid: options.product,
-        vaybel_sku: "",
-        handle: "",
-        name: options.product,
-        title: options.product,
-        type: "",
-        brand: "",
-        default_technique: null,
-        category: "",
-      };
+      return (await getBlank({ product_id: options.product })).product;
     }
 
     const bySku = await listBlanks({
@@ -260,9 +251,6 @@ async function resolveProduct(options: Options): Promise<CatalogProduct> {
     );
     if (exact) {
       return exact;
-    }
-    if (bySku.products[0]) {
-      return bySku.products[0];
     }
     throw new Error(`No catalog product matched --product ${options.product}`);
   }
@@ -306,6 +294,9 @@ async function resolveProduct(options: Options): Promise<CatalogProduct> {
     );
   }
 
+  if (result.products.length > 1) {
+    throw new Error("Several blanks match. Run blank-research, compare suitability and tradeoffs, then pass the selected full UUID with --product before generating.");
+  }
   return result.products[0];
 }
 
