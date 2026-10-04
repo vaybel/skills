@@ -28,6 +28,10 @@ Use `social_post.generate` for requested channel-specific drafts, `social_post.g
 to retrieve a saved draft and `social_post.update` for revisions. Publish with
 `social_post.publish` only when the user explicitly asks to publish the chosen
 post to the chosen channel. Report queued/publishing separately from published.
+Retain the returned post ID and check `social_post.get` for progress; repeating a
+publish request is not a status check. If `action_required` is present, explain
+that step briefly. Delivery to a TikTok inbox still needs the creator to finish
+the post and is not publication.
 Never silently repeat a provider publication after an ambiguous result.
 
 A draft request does not authorize publishing. Return the saved content/draft link
