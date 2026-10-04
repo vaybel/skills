@@ -1,5 +1,11 @@
 # Install Vaybel Skills
 
+## ChatGPT package (in development)
+
+See [ChatGPT packaging](plugins/vaybel/README.md) for the hosted-MCP package.
+That package uses the host connection flow; the prerequisites below apply to local
+runner installations. No official directory release is claimed yet.
+
 ## Prerequisites
 
 - Node.js 20 or newer.

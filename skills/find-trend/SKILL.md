@@ -24,6 +24,12 @@ Revival"), a lifecycle stage, and keyword children. The runner picks the
 strongest named trend, drills into its best keyword, and generates a launch
 concept unless the user asks for trend review only.
 
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
+
 ## Execution
 
 Resolve `$PLUGIN_ROOT` as the absolute plugin root, then invoke:

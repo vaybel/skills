@@ -26,6 +26,12 @@ listings filed into it, and readiness that Vaybel derives from that work. The
 runner creates or opens the drop, ranks the workspace's trends against its
 brief, pins the ones the user chooses, and reports what is still missing.
 
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
+
 ## Execution
 
 Resolve `$PLUGIN_ROOT` as the absolute plugin root, then invoke:

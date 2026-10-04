@@ -29,6 +29,12 @@ Product -> Design -> Mockups
 Content and provider-product import are handled by separate workflow skills.
 Return dashboard links so the user can continue manually.
 
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
+
 ## Choose the blank first
 
 Read [Catalog selection](references/catalog-selection.md). Use the bundled

@@ -1,0 +1,53 @@
+{
+  "name": "vaybel",
+  "version": "0.3.0",
+  "author": {
+    "name": "Vaybel",
+    "email": "support@vaybel.com",
+    "url": "https://vaybel.com"
+  },
+  "homepage": "https://vaybel.com",
+  "repository": "https://github.com/vaybel/skills",
+  "license": "Apache-2.0",
+  "keywords": [
+    "vaybel",
+    "mcp",
+    "agent-skills",
+    "apparel",
+    "print-on-demand",
+    "design-generation",
+    "mockups",
+    "trend-discovery",
+    "social-content",
+    "insights"
+  ],
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "description": "Create clothing designs and mockups, discover trends and prepare product launches with Vaybel.",
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Vaybel",
+        "shortDescription": "Create clothing with Vaybel",
+        "longDescription": "Discover clothing trends, create saved apparel designs and Pro mockups, organize collections, and prepare product content in your connected Vaybel account.",
+        "developerName": "Vaybel",
+        "category": "Design",
+        "capabilities": [
+          "Read",
+          "Write"
+        ],
+        "websiteURL": "https://vaybel.com",
+        "supportURL": "https://vaybel.com/contact",
+        "privacyPolicyURL": "https://vaybel.com/legal/privacy-policy",
+        "termsOfServiceURL": "https://vaybel.com/legal/terms-and-conditions",
+        "defaultPrompt": [
+          "Show me three T-shirt trends for my brand.",
+          "Make a T-shirt with a moon and a moth.",
+          "Make lifestyle mockups for this design."
+        ],
+        "brandColor": "#111827",
+        "composerIcon": "./assets/icon.png",
+        "logo": "./assets/icon.png"
+      }
+    }
+  }
+}
