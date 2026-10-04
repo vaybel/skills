@@ -7,6 +7,8 @@ on:
       - "servers/**"
       - "skills/**"
       - "scripts/**"
+      - "plugins/**"
+      - "assets/**"
       - ".claude-plugin/**"
       - ".codex-plugin/**"
       - ".cursor-plugin/**"
@@ -32,5 +34,6 @@ jobs:
       - run: npm ci
       - run: npm audit --omit=dev --audit-level=moderate
       - run: npm run validate
+      - run: npm run test:chatgpt-package
       - run: npm run typecheck
       - run: npm run build
