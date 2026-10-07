@@ -32,7 +32,10 @@ Retain the returned post ID and check `social_post.get` for progress; repeating 
 publish request is not a status check. If `action_required` is present, explain
 that step briefly. Delivery to a TikTok inbox still needs the creator to finish
 the post and is not publication.
-Never silently repeat a provider publication after an ambiguous result.
+Never silently repeat a provider publication after an ambiguous result. When
+`action_required` asks the user to check their account, ask what they found, then
+call `social_post.publish` for that channel with `confirm_published` if the post
+is there or `confirm_unpublished` if it is not. Never choose either yourself.
 
 A draft request does not authorize publishing. Return the saved content/draft link
 and concise relevant outcome, without inventing reach, engagement or sales.
