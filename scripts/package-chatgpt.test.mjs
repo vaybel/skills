@@ -36,3 +36,33 @@ test('distributable is self-contained and uses hosted OAuth without local secret
     assert.equal(body.match(/^name: (.+)$/m)?.[1], entry.split('/')[1]);
   }
 });
+
+test('listing and review details fit the directory submission limits', () => {
+  const plugin = JSON.parse(fs.readFileSync(path.join(root, 'plugins/vaybel/plugin.json'), 'utf8'));
+  const {interface: listing, review} = plugin.extensions['com.openai'];
+  const categories = [
+    'Productivity', 'Creativity', 'Developer Tools', 'Business & Operations', 'Data & Analytics',
+    'Communication', 'Education & Research', 'Security', 'Finance', 'Healthcare', 'Travel',
+    'Entertainment', 'Other',
+  ];
+  assert.ok(categories.includes(listing.category), 'category is not one the directory accepts');
+  assert.ok(listing.displayName.length <= 30 && listing.shortDescription.length <= 30);
+  assert.ok(listing.capabilities.length <= 20);
+  assert.ok(listing.capabilities.every(item => item.trim() && item.length <= 120));
+  const prompts = listing.defaultPrompt;
+  assert.ok(prompts.length <= 3 && new Set(prompts).size === prompts.length);
+  assert.ok(prompts.every(prompt => prompt.length <= 128 && !prompt.includes('@')));
+  for (const key of ['websiteURL', 'supportURL', 'privacyPolicyURL', 'termsOfServiceURL']) {
+    assert.match(listing[key], /^https:\/\//);
+  }
+  const {positive, negative} = review.test_cases;
+  assert.equal(positive.length, 5);
+  assert.equal(negative.length, 3);
+  for (const item of positive) {
+    for (const key of ['description', 'prompt', 'tools_triggered', 'expected_behavior']) {
+      assert.ok(item[key]?.trim(), `positive case lacks ${key}`);
+    }
+  }
+  assert.ok(negative.every(item => item.description?.trim() && item.prompt?.trim()));
+  assert.equal(typeof review.commerce, 'boolean');
+});

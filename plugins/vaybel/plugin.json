@@ -30,10 +30,16 @@
         "shortDescription": "Create clothing with Vaybel",
         "longDescription": "Discover clothing trends, create saved apparel designs and Pro mockups, organize collections, and prepare product content in your connected Vaybel account.",
         "developerName": "Vaybel",
-        "category": "Design",
+        "category": "Creativity",
         "capabilities": [
-          "Read",
-          "Write"
+          "Find clothing trends",
+          "Compare blank garments",
+          "Create and edit clothing designs",
+          "Create product mockups",
+          "Plan drops and collections",
+          "Prepare and publish store listings",
+          "Create social content and posts",
+          "Review sales and design performance"
         ],
         "websiteURL": "https://vaybel.com",
         "supportURL": "https://vaybel.com/contact",
@@ -42,11 +48,63 @@
         "defaultPrompt": [
           "Show me three T-shirt trends for my brand.",
           "Make a T-shirt with a moon and a moth.",
-          "Make lifestyle mockups for this design."
+          "Make lifestyle mockups for my latest design."
         ],
         "brandColor": "#111827",
         "composerIcon": "./assets/icon.png",
         "logo": "./assets/icon.png"
+      },
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Read the brand saved in the connected account",
+              "prompt": "What do you know about my brand?",
+              "tools_triggered": "brand_dna.get",
+              "expected_behavior": "Summarizes the brand saved in the test account, such as its audience, tone and style, without inventing details or asking to set the brand up again."
+            },
+            {
+              "description": "Compare blank garments",
+              "prompt": "Help me choose a heavyweight T-shirt.",
+              "tools_triggered": "catalog.list_blanks, catalog.compare_blanks",
+              "expected_behavior": "Lists real blank T-shirts from the Vaybel catalog and compares a few on fabric weight, fit, colors and sizes. Nothing is created or charged."
+            },
+            {
+              "description": "Find clothing trends",
+              "prompt": "Show me three T-shirt trends for my brand.",
+              "tools_triggered": "trend.list",
+              "expected_behavior": "Returns up to three named trends from the account with a short design direction for each, or says that none match. No design is generated."
+            },
+            {
+              "description": "Create a saved clothing design",
+              "prompt": "Make a T-shirt with a moon and a moth.",
+              "tools_triggered": "catalog.list_blanks, design.generate, design.get_generation, design.get",
+              "expected_behavior": "Chooses a T-shirt, creates one saved design from the account's allowance, waits for it to finish, which takes a few minutes, then shows the product previews and a link that opens the same design in Vaybel."
+            },
+            {
+              "description": "Browse saved designs and mockups",
+              "prompt": "Show my saved designs.",
+              "tools_triggered": "workspace.open",
+              "expected_behavior": "Opens the Designs and mockups view with the account's saved designs and their product images. Nothing is generated or charged."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Purchases and plan changes are not available",
+              "prompt": "Buy 500 more credits and upgrade my plan."
+            },
+            {
+              "description": "Unsupported bulk deletion",
+              "prompt": "Delete all my designs."
+            },
+            {
+              "description": "Access outside the connected account",
+              "prompt": "Show me the designs saved in another Vaybel account."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "Vaybel does not sell products or process payments in ChatGPT. Creating designs and content uses the allowance of the user's existing Vaybel plan."
       }
     }
   }
