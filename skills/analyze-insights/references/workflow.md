@@ -11,6 +11,8 @@ Tool sequence:
    - Inputs: `range` (`7d` or `28d`), `channel` (`all`, `tiktok`, `etsy`,
      `shopify`, `instagram`).
    - Returns KPIs, deltas, channel rows, and narrative insights.
+   - `metric_coverage` of `partial` means a sales channel or day did not report;
+     the totals are then a floor, not a full count.
 2. `insight.get_guidance`
    - Returns next action, journey stage, revenue state, and weekly publish
      streak.

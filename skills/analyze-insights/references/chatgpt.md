@@ -24,7 +24,9 @@ Use `insight.get_overview` for the requested date range/channels,
 
 Explain the actual range and relevant comparisons. A truncated top snapshot is
 not a complete ranking. If meaningful period data is absent, say so; missing rows
-do not prove poor performance. Distinguish observations from proposed explanations.
+do not prove poor performance. When `metric_coverage` is `partial`, a sales channel
+or day did not report: present those totals as a floor, not a full count.
+Distinguish observations from proposed explanations.
 
 Read `credits.check`, `credits.list_costs` or `credits.list_usage` when the user
 asks about allowance, costs or usage. Do not add credit commentary to unrelated

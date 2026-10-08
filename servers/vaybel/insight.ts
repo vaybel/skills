@@ -15,6 +15,8 @@ export interface InsightKpis {
 
 export interface InsightOverview {
   has_data: boolean;
+  // "partial": a channel or day did not report, so the KPIs are a floor.
+  metric_coverage?: "complete" | "partial" | "unavailable";
   kpis: InsightKpis;
   deltas: Record<string, unknown>;
   per_channel: Array<Record<string, unknown>>;
