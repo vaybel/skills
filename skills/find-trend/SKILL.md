@@ -6,7 +6,7 @@ description: |
   wants trend discovery, ranked opportunities, seasonal or brand-fit trend
   review, or a launch concept for a trend. NOT for generating designs, mockups,
   listings, content, social publishing, or importing provider products.
-argument-hint: [product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]
+argument-hint: "[product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, trend, discovery]

@@ -8,7 +8,7 @@ description: |
   seasonal or themed release, relate trends to a drop, or check how ready a
   drop is. NOT for generating designs, mockups, listings, or content, and NOT
   for browsing the trend feed on its own.
-argument-hint: [drop-name] [--drop UUID] [--kind KIND] [--date YYYY-MM-DD] [--theme TEXT] [--motifs a,b] [--trend UUID] [--match UUID] [--pin-top N] [--attach-design UUID] [--limit N]
+argument-hint: "[drop-name] [--drop UUID] [--kind KIND] [--date YYYY-MM-DD] [--theme TEXT] [--motifs a,b] [--trend UUID] [--match UUID] [--pin-top N] [--attach-design UUID] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, drop, release, trend]

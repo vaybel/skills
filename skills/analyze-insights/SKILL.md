@@ -7,7 +7,7 @@ description: |
   state, journey stage, streaks, revenue state, or next-best-action guidance.
   NOT for creating trends, products, designs, mockups, listings, content,
   social drafts, or publishing.
-argument-hint: [--range 7d|28d] [--channel all|tiktok|etsy|shopify|instagram] [--sort gmv|orders|views] [--limit N]
+argument-hint: "[--range 7d|28d] [--channel all|tiktok|etsy|shopify|instagram] [--sort gmv|orders|views] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, insights, analytics]
