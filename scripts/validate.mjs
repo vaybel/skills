@@ -268,6 +268,7 @@ function validateWrappers() {
     "optimize.import_product",
     "optimize.get_generation",
     "listing.list_warehouses",
+    "listing.sync_warehouses",
     "content.generate",
     "content.get",
     "social_post.generate",
