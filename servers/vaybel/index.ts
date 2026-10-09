@@ -12,3 +12,5 @@ export * from "./optimize.js";
 export * from "./ping.js";
 export * from "./product-video.js";
 export * from "./trend.js";
+export * from "./virtual-model.js";
+export * from "./workspace.js";

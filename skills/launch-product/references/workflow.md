@@ -22,9 +22,11 @@ Expected MCP flow:
 3. `catalog.list_blanks`
 4. `design.generate`
    - When the design idea comes from a trend or a launch concept
-     (`trend.list_trends` / `trend.generate_launch_concept`), ALWAYS pass that
-     trend's id as `trend_match_uuid`. It links the design to the trend so
-     listing titles and tags ground in the trend's real search demand.
+     (`trend.get` / `trend.generate_concept`), ALWAYS pass the keyword's id as
+     `trend_match_uuid`: a `keywords[].id` from `trend.get`, or an `id` from
+     `trend.list_keywords`. Never pass the trend's own top-level id. The
+     keyword links the design to real search demand, so listing titles and
+     tags ground in it.
    - Treat a launch concept's `prompt.concept` as the design brief as-is —
      do not expand it with extra motifs or palette lists.
 5. Poll `design.get_generation` with `wait_sec` (single poll caps at 50s; re-poll until done)
