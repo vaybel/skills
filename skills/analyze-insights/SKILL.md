@@ -7,7 +7,7 @@ description: |
   state, journey stage, streaks, revenue state, or next-best-action guidance.
   NOT for creating trends, products, designs, mockups, listings, content,
   social drafts, or publishing.
-argument-hint: [--range 7d|28d] [--channel all|tiktok|etsy|shopify|instagram] [--sort gmv|orders|views] [--limit N]
+argument-hint: "[--range 7d|28d] [--channel all|tiktok|etsy|shopify|instagram] [--sort gmv|orders|views] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, insights, analytics]
@@ -23,6 +23,12 @@ Run this skill when the user wants to understand what is happening in their
 Vaybel account before deciding what to do next. This is a read-only skill: it
 summarizes the Insights module and credit state, then points the user to the
 dashboard.
+
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
 
 ## Execution
 

@@ -24,6 +24,12 @@ existing listing. The default is draft-safe: generate content and, when
 channels are supplied, generate social post drafts. Publishing requires an
 explicit `--publish`.
 
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
+
 ## Execution
 
 Resolve `$PLUGIN_ROOT` as the absolute plugin root, then invoke:

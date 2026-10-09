@@ -126,6 +126,9 @@ export function publishSocialPosts(input: {
   content_id: string;
   channels: Array<SocialChannel | string>;
   tiktok_settings?: Record<string, unknown>;
+  // Only what the user reports after checking their own account.
+  confirm_published?: Array<SocialChannel | string>;
+  confirm_unpublished?: Array<SocialChannel | string>;
 }): Promise<{ content_id: string; results: PublishSocialPostResult[] }> {
   return callMCPTool<{ content_id: string; results: PublishSocialPostResult[] }>(
     "social_post.publish",

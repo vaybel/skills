@@ -8,7 +8,7 @@ description: |
   seasonal or themed release, relate trends to a drop, or check how ready a
   drop is. NOT for generating designs, mockups, listings, or content, and NOT
   for browsing the trend feed on its own.
-argument-hint: [drop-name] [--drop UUID] [--kind KIND] [--date YYYY-MM-DD] [--theme TEXT] [--motifs a,b] [--trend UUID] [--match UUID] [--pin-top N] [--attach-design UUID] [--limit N]
+argument-hint: "[drop-name] [--drop UUID] [--kind KIND] [--date YYYY-MM-DD] [--theme TEXT] [--motifs a,b] [--trend UUID] [--match UUID] [--pin-top N] [--attach-design UUID] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, drop, release, trend]
@@ -25,6 +25,12 @@ themed release: a brief on top of Brand DNA, a launch date, the designs and
 listings filed into it, and readiness that Vaybel derives from that work. The
 runner creates or opens the drop, ranks the workspace's trends against its
 brief, pins the ones the user chooses, and reports what is still missing.
+
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
 
 ## Execution
 

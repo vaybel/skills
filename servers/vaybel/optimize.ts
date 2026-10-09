@@ -90,7 +90,7 @@ export function optimizeProduct(input: {
   product_id: string;
   shop_id?: string;
 }): Promise<OptimizeTask> {
-  return callMCPTool<OptimizeTask>("optimize.run", input);
+  return callMCPTool<OptimizeTask>("optimize.import_product", input);
 }
 
 export function refreshListing(designId: string): Promise<RefreshListingResponse> {

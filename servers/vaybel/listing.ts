@@ -75,8 +75,12 @@ export interface TikTokWarehouse {
   is_default: boolean;
 }
 
-export function listWarehouses(refresh = false): Promise<{ warehouses: TikTokWarehouse[] }> {
-  return callMCPTool<{ warehouses: TikTokWarehouse[] }>("listing.list_warehouses", { refresh });
+export function listWarehouses(): Promise<{ warehouses: TikTokWarehouse[] }> {
+  return callMCPTool<{ warehouses: TikTokWarehouse[] }>("listing.list_warehouses", {});
+}
+
+export function syncWarehouses(): Promise<{ warehouses: TikTokWarehouse[] }> {
+  return callMCPTool<{ warehouses: TikTokWarehouse[] }>("listing.sync_warehouses", {});
 }
 
 export function regenerateListingField(

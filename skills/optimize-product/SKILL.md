@@ -22,6 +22,12 @@ required_environment_variables:
 Run this skill when the user wants Vaybel to ingest and optimize an existing
 Printify or Printful product from a connected account.
 
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
+
 ## Execution
 
 Resolve `$PLUGIN_ROOT` as the absolute plugin root, then invoke:
@@ -60,7 +66,7 @@ The runner will:
 1. List connected providers or provider products when `--list` is used.
 2. Check whether the provider product is already imported.
 3. Skip duplicate imports unless `--force` is supplied.
-4. Dispatch `optimize.run` and wait for completion.
+4. Dispatch `optimize.import_product` and wait for completion.
 5. Return design/listing IDs and the dashboard URL.
 
 ## Rules

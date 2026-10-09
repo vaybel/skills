@@ -99,6 +99,10 @@ function renderMarkdown(summary: InsightsSummary): string {
     `- Has data: ${summary.overview.has_data ? "yes" : "no"}`,
   ];
 
+  if (summary.overview.metric_coverage === "partial") {
+    lines.push("- Coverage: partial (a sales channel or day did not report; totals are a floor)");
+  }
+
   if (summary.credits) {
     lines.push(
       `- Credits: ${summary.credits.balance === null ? "not billed to org" : summary.credits.balance}`,

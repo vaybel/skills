@@ -22,7 +22,9 @@
     "docs:dev": "npm --prefix docs-site run dev",
     "docs:build": "npm --prefix docs-site run build",
     "docs:preview": "npm --prefix docs-site run preview",
-    "blank-research": "npm run build --silent && node dist/skills/launch-product/research.js"
+    "blank-research": "npm run build --silent && node dist/skills/launch-product/research.js",
+    "package:chatgpt": "node scripts/package-chatgpt.mjs",
+    "test:chatgpt-package": "node --test scripts/package-chatgpt.test.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.23.0"

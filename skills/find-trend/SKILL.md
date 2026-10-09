@@ -6,7 +6,7 @@ description: |
   wants trend discovery, ranked opportunities, seasonal or brand-fit trend
   review, or a launch concept for a trend. NOT for generating designs, mockups,
   listings, content, social publishing, or importing provider products.
-argument-hint: [product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]
+argument-hint: "[product-type] [--lifecycle emerging|rising|peak|declining] [--type TYPE] [--trend UUID] [--match UUID] [--no-concept] [--limit N]"
 allowed-tools: Bash(npm *), Bash(node *), Read
 metadata:
   tags: [vaybel, trend, discovery]
@@ -23,6 +23,12 @@ Vaybel's trend feed. Trends are NAMED clusters with a story ("Coastal Grandma
 Revival"), a lifecycle stage, and keyword children. The runner picks the
 strongest named trend, drills into its best keyword, and generates a launch
 concept unless the user asks for trend review only.
+
+## Connected ChatGPT workflow
+
+When this skill is packaged for ChatGPT, use the connected-MCP workflow in
+[ChatGPT workflow](references/chatgpt.md). The runner instructions below apply
+to the existing local code-on-MCP installation.
 
 ## Execution
 
