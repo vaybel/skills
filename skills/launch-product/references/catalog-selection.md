@@ -15,7 +15,7 @@ construction. Sizing includes the raw canonical size tables used by the app.
 Responses page facts and compact claim references. Follow returned next_offset
 values using --offset; get_blank returns ten rows per section, comparisons three.
 The research URL links to the full claim register with targets and source locators.
-These calls are read-only and require catalog:read and Starter or above.
+These calls are read-only, require catalog:read and work on every plan.
 
 Ask about intended garment, fit, fabric/feel, weight, sizes and colors. Start
 with the cited when-to-choose summary and tradeoffs, then inspect the relevant
