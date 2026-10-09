@@ -13,7 +13,7 @@ Expected MCP flow:
 1. `optimize.list_providers` when provider context is missing
 2. `optimize.list_provider_products` when browsing provider products
 3. `optimize.check_duplicate`
-4. `optimize.run`
+4. `optimize.import_product`
 5. Poll `optimize.get_generation` with `wait_sec` (single poll caps at 50s; re-poll until done)
 6. Optional `optimize.refresh_listing`
 

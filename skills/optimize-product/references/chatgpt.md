@@ -23,7 +23,7 @@ requested connected product. A provider product ID differs from a Vaybel design 
 use the IDs returned by the relevant reads.
 
 Check `optimize.check_duplicate` before importing. Reuse an existing import unless
-the user explicitly requests another. Call `optimize.run` only for the selected
+the user explicitly requests another. Call `optimize.import_product` only for the selected
 product, then poll `optimize.get_generation` with its returned handle.
 For an existing design's listing discovery, use `optimize.refresh_listing` when
 requested. Report the persisted result and returned app link.

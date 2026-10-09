@@ -11,7 +11,7 @@ Input:
 Expected:
 
 - checks duplicate import state
-- dispatches `optimize.run` when not imported
+- dispatches `optimize.import_product` when not imported
 - polls `optimize.get_generation` until done
 - returns task, design/listing IDs, and dashboard URL
 
