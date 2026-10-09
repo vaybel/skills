@@ -274,6 +274,22 @@ function validateWrappers() {
     "social_post.generate",
     "social_post.get",
     "social_post.publish",
+    "brand_dna.set",
+    "brand_dna.list_audience_presets",
+    "design.edit",
+    "design.get",
+    "design.list",
+    "design.get_history",
+    "design.submit_feedback",
+    "mockup.get",
+    "mockup.show",
+    "mockup.retry",
+    "mockup.submit_feedback",
+    "mockup.update_selection",
+    "virtual_model.list",
+    "virtual_model.generate",
+    "virtual_model.get_generation",
+    "workspace.open",
   ];
   const wrapperText = walk(["servers/vaybel"]).map(read).join("\n");
   for (const tool of expectedTools) {

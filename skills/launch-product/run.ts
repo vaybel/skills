@@ -178,25 +178,29 @@ async function launchProduct(options: Options): Promise<LaunchSummary> {
   });
 
   // handle is null when every requested mockup already existed - nothing to
-  // poll; read the finished rows with mockup.list instead.
-  const mockupRows = mockupTask.handle
+  // poll; read the finished rows with mockup.list instead. Saved rows keep the
+  // image in `image` and are filtered to CREATED, the stored value for finished.
+  const mockups = mockupTask.handle
     ? await (async () => {
         const status = await waitForMockup(mockupTask.handle as string, options.mockupTimeoutSec);
         if (status.status !== "complete") {
           throw new Error(`Mockups did not complete: status=${status.status}`);
         }
-        return status.mockups;
+        return status.mockups.map((mockup) => ({
+          id: mockup.id,
+          external_key: mockup.external_key,
+          image_url: mockup.image_url,
+          status: mockup.status,
+        }));
       })()
-    : (await listMockups(design.design_id)).results.filter((mockup) =>
-        mockupTask.mockup_ids.includes(mockup.id),
-      );
-
-  const mockups = mockupRows.map((mockup) => ({
-    id: mockup.id,
-    external_key: mockup.external_key,
-    image_url: mockup.image_url,
-    status: mockup.status,
-  }));
+    : (await listMockups(design.design_id, { status: "CREATED", page_size: 100 })).results
+        .filter((mockup) => mockupTask.mockup_ids.includes(mockup.id))
+        .map((mockup) => ({
+          id: mockup.id,
+          external_key: mockup.external_key ?? "",
+          image_url: mockup.image,
+          status: "complete" as const,
+        }));
   const completedCount = listingReadyMockupCount(mockups);
   if (completedCount < LISTING_MINIMUM_MOCKUPS) {
     throw new Error(

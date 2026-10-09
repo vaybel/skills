@@ -52,6 +52,75 @@ export function waitForMockup(handle: string, timeoutSec = 300): Promise<MockupS
   return pollToolUntilDone<MockupStatus>("mockup.get_generation", { handle }, timeoutSec);
 }
 
-export function listMockups(designId: string): Promise<{ results: Mockup[] }> {
-  return callMCPTool<{ results: Mockup[] }>("mockup.list", { design_id: designId });
+export type MockupFeedback = "like" | "dislike" | null;
+
+// A saved mockup, as mockup.list, mockup.get and mockup.show return it. This
+// is not the polling row above: the image is in `image`, and `status` is the
+// stored value, `CREATED` for a finished mockup.
+export interface SavedMockup {
+  id: string;
+  view?: string | null;
+  external_key?: string;
+  type?: string;
+  image: string | null;
+  video: string | null;
+  status: "PREPARING" | "QUEUED" | "GENERATING" | "CREATED" | "FAILED" | string;
+  selected?: boolean;
+  feedback?: MockupFeedback;
+  created_at?: string;
+  step_message: string;
+  error_message: string;
+  // The design's mockups page in the app.
+  url?: string;
+}
+
+export interface MockupPage {
+  results: SavedMockup[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export function listMockups(
+  designId: string,
+  input: { status?: string; group?: string; page?: number; page_size?: number } = {},
+): Promise<MockupPage> {
+  return callMCPTool<MockupPage>("mockup.list", { design_id: designId, ...input });
+}
+
+export function getMockup(mockupId: string): Promise<SavedMockup> {
+  return callMCPTool<SavedMockup>("mockup.get", { mockup_id: mockupId });
+}
+
+// Returns the finished mockups for 1-20 ids. In a host that renders MCP UI this
+// tool also draws the gallery; here it returns the same records.
+export function showMockups(mockupIds: string[]): Promise<{ results: SavedMockup[]; total: number }> {
+  return callMCPTool<{ results: SavedMockup[]; total: number }>("mockup.show", {
+    mockup_ids: mockupIds,
+  });
+}
+
+// Generates a finished or failed mockup again in place: the new image replaces
+// the current one. Free; follow the returned handle with waitForMockup.
+export function retryMockup(
+  mockupId: string,
+  feedback?: string,
+): Promise<{ mockup_id: string; handle: string; status: "pending" }> {
+  return callMCPTool<{ mockup_id: string; handle: string; status: "pending" }>("mockup.retry", {
+    mockup_id: mockupId,
+    ...(feedback === undefined ? {} : { feedback }),
+  });
+}
+
+// Replaces the mockup's saved rating; `null` removes it.
+export function submitMockupFeedback(
+  mockupId: string,
+  feedback: MockupFeedback,
+): Promise<SavedMockup> {
+  return callMCPTool<SavedMockup>("mockup.submit_feedback", { mockup_id: mockupId, feedback });
+}
+
+// Selected mockups are the ones listing.create puts on a listing.
+export function updateMockupSelection(mockupId: string, selected: boolean): Promise<SavedMockup> {
+  return callMCPTool<SavedMockup>("mockup.update_selection", { mockup_id: mockupId, selected });
 }

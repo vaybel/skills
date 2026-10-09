@@ -38,3 +38,46 @@ export interface BrandDNA {
 export function getBrandDNA(): Promise<BrandDNA> {
   return callMCPTool<BrandDNA>("brand_dna.get");
 }
+
+export interface SetBrandDNAInput {
+  brand_description?: string;
+  colors?: string[];
+  typography?: string;
+  tone?: string;
+  product_types?: string[];
+  niches?: Array<string | { name: string }>;
+  // A preset may be passed as just `{ key, is_preset: true }`.
+  audiences?: Array<Partial<BrandAudience> & { key: string }>;
+  user_brand_input?: string;
+  logo?: { logo_url?: string; logo_s3_key?: string; logo_description?: string };
+}
+
+export interface SetBrandDNAResponse {
+  brand_description: string;
+  colors: string[];
+  typography: string;
+  tone: string;
+  product_types: string[];
+  niches: BrandNiche[];
+  audiences: BrandAudience[];
+  trend_pipeline_requested: boolean;
+}
+
+// brand_dna.set replaces the whole profile: every field left out is saved
+// empty, except the logo. Read brand_dna.get first and pass back what should stay.
+export function setBrandDNA(input: SetBrandDNAInput): Promise<SetBrandDNAResponse> {
+  return callMCPTool<SetBrandDNAResponse>("brand_dna.set", input);
+}
+
+export interface AudiencePreset {
+  key: string;
+  label: string;
+  age_range: string;
+  gender_options: AudienceGender[];
+  ethnicity_options: string[];
+  description: string;
+}
+
+export function listAudiencePresets(): Promise<{ presets: AudiencePreset[] }> {
+  return callMCPTool<{ presets: AudiencePreset[] }>("brand_dna.list_audience_presets");
+}
