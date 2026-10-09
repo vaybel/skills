@@ -1,0 +1,106 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "printgen",
+  "version": "0.1.0",
+  "description": "Create personalized apparel, refine saved designs, and prepare a PrintGen checkout.",
+  "author": {
+    "name": "Algorithmic Labs, LLC",
+    "email": "contact@printgen.ai",
+    "url": "https://printgen.ai"
+  },
+  "homepage": "https://printgen.ai/developers",
+  "license": "Apache-2.0",
+  "keywords": [
+    "printgen",
+    "custom-apparel",
+    "personalized-clothing",
+    "print-on-demand"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "PrintGen",
+        "shortDescription": "Create personalized apparel",
+        "longDescription": "Turn a text idea into custom apparel, refine the saved design, inspect garment previews, choose sizes and quantities, and open a Shopify checkout to pay. Check payment, production and delivery through your connected PrintGen account. Shipping is available within the United States. Photo and logo uploads are not supported by this integration.",
+        "developerName": "Algorithmic Labs, LLC",
+        "category": "Creativity",
+        "capabilities": [
+          "Choose garments and colors",
+          "Create and refine custom apparel",
+          "Browse saved designs and mockups",
+          "Prepare a checkout with mixed sizes",
+          "Check payment and order status"
+        ],
+        "websiteURL": "https://printgen.ai/developers",
+        "supportURL": "https://printgen.ai/developers",
+        "privacyPolicyURL": "https://printgen.ai/legal/privacy-policy",
+        "termsOfServiceURL": "https://printgen.ai/legal/terms-and-conditions",
+        "defaultPrompt": [
+          "Make a T-shirt with a moon and a moth.",
+          "Help me order my saved design in two sizes.",
+          "Where is my PrintGen order?"
+        ],
+        "logo": "./assets/icon.png",
+        "composerIcon": "./assets/icon.png"
+      },
+      "review": {
+        "commerce": true,
+        "commerce_description": "Customers purchase customized physical apparel. The tools prepare a quote and an external Shopify checkout; payment takes place there. They do not collect card details, charge a payment method, sell credits or subscriptions, or upgrade plans.",
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Browse real garments and resolve available variants without creating anything.",
+              "prompt": "What T-shirts can I customize? Show me the colors and sizes for one.",
+              "tools_triggered": "shop.list_products, shop.get_product",
+              "expected_behavior": "Shows real catalog products with starting prices, then the selected product's available colors, sizes and prices. Does not generate artwork or prepare checkout."
+            },
+            {
+              "description": "Create one text-based saved design. Use the dedicated buyer account with allowance; choose an available T-shirt when asked.",
+              "prompt": "Make a T-shirt with a moon and a moth.",
+              "tools_triggered": "shop.list_products, shop.get_product, design.generate, design.get_generation, design.get",
+              "expected_behavior": "Creates one design on the chosen T-shirt, polls the same handle until terminal, and shows the saved product previews and returned PrintGen link. Does not create extra mockups or checkout."
+            },
+            {
+              "description": "Continue after the creation case, or select the same saved design from the library. Inspect the edited preview before approving it.",
+              "prompt": "Change the moth to a butterfly and keep the moon.",
+              "tools_triggered": "design.edit, design.get_generation, design.get",
+              "expected_behavior": "Edits the selected saved design once, polls the returned handle, and shows the new saved version for inspection. Does not silently order either version."
+            },
+            {
+              "description": "Continue with an approved saved T-shirt design that has M and L available in its previewed color. A color change requires a new edited preview and approval first. Stop before payment.",
+              "prompt": "I approve this design. Prepare checkout for one medium and two large shirts, shipped within the US.",
+              "tools_triggered": "shop.get_product, shop.create_checkout",
+              "expected_behavior": "Uses the approved design and returned M/L variant IDs from the same color group as its preview, with quantities 1 and 2. Shows the server quote, tax and shipping limitations, and external checkout link. Retains the checkout ID and does not claim payment or create an order."
+            },
+            {
+              "description": "Read this buyer's orders. The initial reviewer account may have none; an empty result is valid and must be stated accurately.",
+              "prompt": "Where is my PrintGen order?",
+              "tools_triggered": "shop.list_orders, shop.get_order",
+              "expected_behavior": "Lists only this buyer's saved orders and reads the selected order when present, reporting actual production and tracking data. If none exist, says so without making a checkout or inventing a purchase."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Attachments are unsupported. Explain the limit without calling design.generate or pretending to use the photo; offer the website or an explicitly approved text-based alternative.",
+              "prompt": "Put this exact photo of my dog on a shirt without changing it."
+            },
+            {
+              "description": "Another buyer's private designs are inaccessible. Do not retrieve them or switch accounts on the user's behalf.",
+              "prompt": "Show me designs saved by another PrintGen customer."
+            },
+            {
+              "description": "Buyer tools cannot publish merchant listings. Explain the limit without calling checkout or claiming to publish.",
+              "prompt": "Publish this design to my Etsy store."
+            }
+          ]
+        }
+      },
+      "publication": {
+        "countries": [
+          "US"
+        ],
+        "release_notes": "Initial PrintGen plugin for text-based apparel creation, saved previews, external checkout and order status."
+      }
+    }
+  }
+}
