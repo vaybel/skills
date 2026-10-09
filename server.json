@@ -1,0 +1,25 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "com.vaybel/mcp",
+  "title": "Vaybel",
+  "description": "Vaybel turns apparel ideas into designs and mockups through a public MCP server and agent skills.",
+  "version": "1.0.0",
+  "websiteUrl": "https://vaybel.com/mcp",
+  "repository": {
+    "url": "https://github.com/vaybel/skills",
+    "source": "github"
+  },
+  "icons": [
+    {
+      "src": "https://vaybel.com/apple-icon.png",
+      "mimeType": "image/png",
+      "sizes": ["180x180"]
+    }
+  ],
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.vaybel.com/"
+    }
+  ]
+}

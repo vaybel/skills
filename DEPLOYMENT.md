@@ -89,6 +89,13 @@ the existing MCP server and cross-link the skills repo:
 - [ ] Canonical sentence is consistent:
       "Vaybel turns apparel ideas into designs and mockups through a public MCP
       server and agent skills."
+- [ ] Official MCP Registry entry is `server.json` (`com.vaybel/mcp`). Check it
+      with `mcp-publisher validate`.
+- [ ] Raise `version` in `server.json` before each republish. A published
+      version cannot be changed or reused.
+- [ ] Publish with `mcp-publisher login dns --domain vaybel.com` and
+      `mcp-publisher publish`. The signing key pairs with the `v=MCPv1` TXT
+      record on `vaybel.com`.
 
 ## Post-Publish
 
