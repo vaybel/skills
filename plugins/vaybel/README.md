@@ -13,15 +13,13 @@ of the same public MCP workflows, not another backend.
 The square icon is copied from Platform's `frontend/apps/vaybel/public/icon-256x256.png`.
 Existing wide SVG brand artwork remains unchanged for its existing consumers.
 
-Status: local package preparation, not submitted or live-qualified. The manifest
-carries the listing fields and draft review cases the submission page asked for on
-October 8: five positive and three negative cases, checked against the public tool
-names but not yet run on a review account. Before upload, complete the
-experience-lab gates, run every review case on the review account and correct the
-wording to what was observed, and add `review.demo_recording_url` with the actual
-walkthrough. Provide reviewer access through the secure portal. Do not put
-credentials or reviewer instructions in the ZIP. Use a version bump when preparing
-a release.
+Status: prepared for directory submission. The manifest carries the listing fields
+and the review cases the submission page asks for: five positive and three negative
+cases. All eight were run on the review account on October 9 and their wording
+matches what was observed. `review.demo_recording_url` links the recorded
+walkthrough of those cases. Provide reviewer access through the secure portal. Do
+not put credentials or reviewer instructions in the ZIP. Use a version bump when
+preparing a release.
 
 The backend workspace extension is a separate deployment. This package does not
 claim that a sidebar or event subscription exists before that deployment and host
