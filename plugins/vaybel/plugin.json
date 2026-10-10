@@ -79,7 +79,7 @@
               "description": "Create a saved clothing design",
               "prompt": "Make a T-shirt with a moon and a moth.",
               "tools_triggered": "brand_dna.get, credits.check, catalog.list_blanks, design.generate, design.get_generation, design.get",
-              "expected_behavior": "Chooses a T-shirt, creates one saved design from the account's allowance, waits for it to finish, which takes one to two minutes, then shows the front and back product previews and a link that opens the same design in Vaybel. The design is saved, not published."
+              "expected_behavior": "Chooses a T-shirt, creates one saved design from the account's allowance, waits for it to finish, which takes about two minutes, then shows the front and back product previews and a link that opens the same design in Vaybel. The design is saved, not published. Occasionally Vaybel's own quality check rejects a result: the reply then says the design could not be completed and shows no preview, and asking again creates a new design."
             },
             {
               "description": "Browse saved designs and mockups",
