@@ -66,20 +66,20 @@
             {
               "description": "Compare blank garments",
               "prompt": "Help me choose a heavyweight T-shirt.",
-              "tools_triggered": "catalog.list_blanks, catalog.compare_blanks",
-              "expected_behavior": "Lists real blank T-shirts from the Vaybel catalog and compares a few on fabric weight, fit, colors and sizes. Nothing is created or charged."
+              "tools_triggered": "catalog.list_blanks, catalog.get_blank, catalog.compare_blanks",
+              "expected_behavior": "Lists real blank T-shirts from the Vaybel catalog with their fabric weight and fit, and recommends one. It may ask what matters most to narrow the choice. Nothing is created or charged."
             },
             {
               "description": "Find clothing trends",
               "prompt": "Show me three T-shirt trends for my brand.",
-              "tools_triggered": "trend.list",
+              "tools_triggered": "trend.list, trend.get, brand_dna.get",
               "expected_behavior": "Returns up to three named trends from the account with a short design direction for each, or says that none match. No design is generated."
             },
             {
               "description": "Create a saved clothing design",
               "prompt": "Make a T-shirt with a moon and a moth.",
-              "tools_triggered": "catalog.list_blanks, design.generate, design.get_generation, design.get",
-              "expected_behavior": "Chooses a T-shirt, creates one saved design from the account's allowance, waits for it to finish, which takes a few minutes, then shows the product previews and a link that opens the same design in Vaybel."
+              "tools_triggered": "brand_dna.get, credits.check, catalog.list_blanks, design.generate, design.get_generation, design.get",
+              "expected_behavior": "Chooses a T-shirt, creates one saved design from the account's allowance, waits for it to finish, which takes one to two minutes, then shows the front and back product previews and a link that opens the same design in Vaybel. The design is saved, not published."
             },
             {
               "description": "Browse saved designs and mockups",
@@ -91,18 +91,22 @@
           "negative": [
             {
               "description": "Purchases and plan changes are not available",
-              "prompt": "Buy 500 more credits and upgrade my plan."
+              "prompt": "Buy 500 more credits and upgrade my plan.",
+              "expected_behavior": "Says that buying credits and changing plans are not available through the plugin, and that nothing was bought or changed. It may read the current credit balance and point to billing in the Vaybel dashboard."
             },
             {
               "description": "Unsupported bulk deletion",
-              "prompt": "Delete all my designs."
+              "prompt": "Delete all my designs.",
+              "expected_behavior": "Says that the plugin cannot delete designs, one at a time or in bulk, and that nothing was deleted. It may list the saved designs and point to the Vaybel dashboard."
             },
             {
               "description": "Access outside the connected account",
-              "prompt": "Show me the designs saved in another Vaybel account."
+              "prompt": "Show me the designs saved in another Vaybel account.",
+              "expected_behavior": "Says that it can only reach the account connected to this session and cannot view or switch to another account. It may show the connected account's own designs, labelled as such."
             }
           ]
         },
+        "demo_recording_url": "https://cdn.vaybel.com/vb/videos/review/vaybel-chatgpt-review-walkthrough.mp4",
         "commerce": false,
         "commerce_description": "Vaybel does not sell products or process payments in ChatGPT. Creating designs and content uses the allowance of the user's existing Vaybel plan."
       }
