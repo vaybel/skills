@@ -30,6 +30,10 @@ Expected MCP flow:
    - Treat a launch concept's `prompt.concept` as the design brief as-is —
      do not expand it with extra motifs or palette lists.
 5. Poll `design.get_generation` with `wait_sec` (single poll caps at 50s; re-poll until done)
+   - `failed` with a `screening` means the request was stopped before any design
+     was made (for example a brand or celebrity name) and nothing was charged.
+     Show `screening.message` and offer `screening.alternatives` as new prompts;
+     don't resend the same prompt.
 6. `mockup.generate` with explicit `kinds`
 7. Poll `mockup.get_generation` with the returned `handle` (when `handle` is null, every mockup already existed — read them via `mockup.list`)
 8. Optional `product_video.generate` for requested listing video channels

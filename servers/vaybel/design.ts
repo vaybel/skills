@@ -13,6 +13,17 @@ export interface GenerateDesignResponse {
   message?: string;
 }
 
+// Set when the request was stopped before any design was made (for example a brand,
+// celebrity or character name). No credits are charged.
+export interface DesignScreening {
+  decision: string;
+  category: string;
+  message: string;
+  question: string | null;
+  // Offer these to the user; each prompt runs as a new design.generate.
+  alternatives: { label: string; prompt: string }[];
+}
+
 export interface DesignStatus {
   status: "pending" | "running" | "complete" | "failed";
   handle?: string;
@@ -24,6 +35,7 @@ export interface DesignStatus {
   stage: string;
   image_url: string | null;
   error: string;
+  screening?: DesignScreening | null;
 }
 
 export function generateDesign(input: GenerateDesignInput): Promise<GenerateDesignResponse> {
